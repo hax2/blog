@@ -1,0 +1,994 @@
+Full pasteable HTML:
+
+```html
+<style>
+  .lis-post {
+    max-width: 820px;
+    margin: 0 auto;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    line-height: 1.65;
+    color: #171717;
+  }
+
+  .lis-post h1,
+  .lis-post h2,
+  .lis-post h3 {
+    line-height: 1.2;
+  }
+
+  .lis-post h1 {
+    font-size: 2.1rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .lis-post h2 {
+    margin-top: 2.4rem;
+    font-size: 1.35rem;
+  }
+
+  .lis-post p {
+    margin: 1rem 0;
+  }
+
+  .lis-post pre {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    overflow-x: auto;
+  }
+
+  .lis-post code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  .lis-graphic-note {
+    border: 1px dashed #aaa;
+    border-radius: 12px;
+    padding: 1rem;
+    background: #fafafa;
+    font-size: 0.95rem;
+  }
+
+  .lis-flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 0.7rem;
+  }
+
+  .lis-flow span {
+    border: 1px solid #ccc;
+    border-radius: 999px;
+    padding: 0.35rem 0.65rem;
+    background: white;
+    font-size: 0.9rem;
+  }
+
+  .lis-widget {
+    margin: 1.8rem 0;
+    padding: 1rem;
+    border: 1px solid #d5d5d5;
+    border-radius: 16px;
+    background: #fbfbfb;
+  }
+
+  .lis-widget h3 {
+    margin-top: 0;
+    margin-bottom: 0.35rem;
+  }
+
+  .lis-widget-desc {
+    margin-top: 0;
+    color: #444;
+    font-size: 0.95rem;
+  }
+
+  .lis-controls {
+    display: grid;
+    gap: 0.8rem;
+    margin: 1rem 0;
+  }
+
+  .lis-control {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .lis-control label {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .lis-control input[type="range"],
+  .lis-control select {
+    width: 100%;
+  }
+
+  .lis-readout {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+
+  .lis-token-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 78px;
+    gap: 0.6rem;
+    align-items: center;
+    font-size: 0.95rem;
+  }
+
+  .lis-token-label {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  .lis-bar-shell {
+    height: 16px;
+    background: #e8e8e8;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .lis-bar {
+    height: 100%;
+    width: 0%;
+    background: #222;
+    border-radius: 999px;
+  }
+
+  .lis-math-line {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 0.75rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.95rem;
+  }
+
+  .lis-sampler-table,
+  .lis-wcs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    margin-top: 1rem;
+  }
+
+  .lis-sampler-table th,
+  .lis-sampler-table td,
+  .lis-wcs-table th,
+  .lis-wcs-table td {
+    border-bottom: 1px solid #ddd;
+    padding: 0.45rem;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .lis-sampler-table th,
+  .lis-wcs-table th {
+    font-weight: 700;
+    background: #f1f1f1;
+  }
+
+  .lis-kept {
+    font-weight: 700;
+  }
+
+  .lis-cut {
+    color: #777;
+    text-decoration: line-through;
+  }
+
+  .lis-pill {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 0.12rem 0.5rem;
+    border: 1px solid #bbb;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+
+  .lis-callout {
+    border-left: 4px solid #222;
+    padding: 0.7rem 1rem;
+    background: #f7f7f7;
+    margin: 1.2rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .lis-token-row {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
+
+    .lis-sampler-table,
+    .lis-wcs-table {
+      font-size: 0.82rem;
+    }
+  }
+</style>
+
+<article class="lis-post">
+  <h1>Lost in Sampling: why LLMs silently lose words</h1>
+
+  <p>
+    When an LLM predicts the next token, it reads the context that came before and produces a logit for every token in its vocabulary.
+  </p>
+
+  <div class="lis-graphic-note">
+    <strong>Pipeline:</strong>
+    <div class="lis-flow">
+      <span>context</span>
+      <span>model</span>
+      <span>logits</span>
+      <span>temperature</span>
+      <span>softmax</span>
+      <span>sampler</span>
+      <span>sampled token</span>
+    </div>
+  </div>
+
+  <p>
+    A logit is a unitless score assigned to a possible next token. The higher a token’s logit is compared with the surrounding logits, the more probability that token receives after softmax. A token with logit 3 is favored over a token with logit 1 because of the gap between them.
+  </p>
+
+  <p>
+    For Llama 3, the vocabulary has 128k tokens. These include whole words, word pieces, punctuation, spaces, and other text fragments.
+  </p>
+
+  <p>
+    If the LLM always chooses the token with the highest score, this is called <strong>greedy decoding</strong>.
+  </p>
+
+  <p>
+    Temperature is an inference-time setting. It is usually treated as a creativity parameter: higher temperature makes the output more varied, while lower temperature makes the output more predictable. At <strong>T = 0</strong>, the model uses greedy decoding and selects the highest-scoring token.
+  </p>
+
+  <p>
+    For values above zero, temperature works by dividing the logits before softmax. Lower temperatures stretch the gaps between logits. Higher temperatures compress them.
+  </p>
+
+  <p>
+    Imagine the word <strong>“popsicle”</strong> gets the logit 3 and the word <strong>“cheese”</strong> gets the logit 1.
+  </p>
+
+  <p>
+    If we set the temperature to 2, each logit is divided by 2 before being converted into a probability:
+  </p>
+
+  <pre><code>popsicle: 3 / 2 → 1.5
+cheese:   1 / 2 → 0.5</code></pre>
+
+  <p>The gap was originally:</p>
+
+  <pre><code>3 - 1 = 2</code></pre>
+
+  <p>After temperature scaling, the gap is:</p>
+
+  <pre><code>1.5 - 0.5 = 1</code></pre>
+
+  <p>
+    Softmax turns gaps between logits into ratios between probabilities. With a gap of 2, <strong>popsicle</strong> becomes <em>e²</em> times as likely as <strong>cheese</strong>. With a gap of 1, it becomes <em>e¹</em> times as likely. The smaller gap makes the final probabilities closer together.
+  </p>
+
+  <div class="lis-widget" id="lis-softmax-widget">
+    <h3>Interactive illustration: temperature and softmax</h3>
+    <p class="lis-widget-desc">
+      Change the logits or the temperature. Higher temperature compresses the gap before softmax, making the probabilities closer together.
+    </p>
+
+    <div class="lis-controls">
+      <div class="lis-control">
+        <label for="lis-logit-a">popsicle logit: <span id="lis-logit-a-val">3.0</span></label>
+        <input id="lis-logit-a" type="range" min="-5" max="8" step="0.1" value="3">
+      </div>
+
+      <div class="lis-control">
+        <label for="lis-logit-b">cheese logit: <span id="lis-logit-b-val">1.0</span></label>
+        <input id="lis-logit-b" type="range" min="-5" max="8" step="0.1" value="1">
+      </div>
+
+      <div class="lis-control">
+        <label for="lis-temp">temperature: <span id="lis-temp-val">2.0</span></label>
+        <input id="lis-temp" type="range" min="0.1" max="3" step="0.1" value="2">
+      </div>
+    </div>
+
+    <div class="lis-math-line" id="lis-softmax-math"></div>
+
+    <div class="lis-readout">
+      <div class="lis-token-row">
+        <div class="lis-token-label">popsicle</div>
+        <div class="lis-bar-shell"><div class="lis-bar" id="lis-bar-a"></div></div>
+        <div id="lis-prob-a">73.1%</div>
+      </div>
+
+      <div class="lis-token-row">
+        <div class="lis-token-label">cheese</div>
+        <div class="lis-bar-shell"><div class="lis-bar" id="lis-bar-b"></div></div>
+        <div id="lis-prob-b">26.9%</div>
+      </div>
+    </div>
+  </div>
+
+  <p>
+    To turn the logits into probabilities, we use <strong>softmax</strong>. Softmax raises the mathematical constant <strong>e</strong> to the power of each logit, then divides that value by the sum of all the exponentiated logits.
+  </p>
+
+  <p>
+    In the example above, with temperature set to 2, the probabilities become:
+  </p>
+
+  <pre><code>popsicle: 73%
+cheese:   27%</code></pre>
+
+  <p>
+    With temperature set to 1, they become:
+  </p>
+
+  <pre><code>popsicle: 88%
+cheese:   12%</code></pre>
+
+  <p>
+    So increasing temperature raises the chance that the model picks the less likely word. It flattens the probability distribution. Decreasing temperature sharpens it.
+  </p>
+
+  <p>
+    But a lower-probability word still has to survive the sampler.
+  </p>
+
+  <p>
+    Sampling filters reduce the set of possible tokens the model can choose from. Before filtering, every token has some probability, even if that probability is tiny. After filtering, many tokens are removed from the final choice.
+  </p>
+
+  <p>
+    The three common sampling filters are <strong>top-k</strong>, <strong>top-p</strong>, and <strong>min-p</strong>.
+  </p>
+
+  <p>
+    For <strong>top-k</strong>, we choose a value of k, for example 20. The model keeps the 20 highest-probability tokens and discards everything else. The final token is sampled from those 20.
+  </p>
+
+  <p>
+    For <strong>top-p</strong>, also called <strong>nucleus sampling</strong>, we choose a probability threshold, for example 0.9. The model sorts tokens from most likely to least likely, then keeps adding tokens until their cumulative probability reaches the threshold. Everything after that is discarded. The remaining probabilities are then renormalized so they add up to 100%.
+  </p>
+
+  <p>
+    For example, if the most likely token has probability 40%, we keep it. If the second has probability 20%, we keep that too, bringing the total to 60%. We continue until the kept tokens reach 90%. The rest are removed before the final sample.
+  </p>
+
+  <p>
+    For <strong>min-p</strong>, the cutoff is based on the probability of the most likely token. If min-p is 0.05 and the top token has probability 40%, then the cutoff is:
+  </p>
+
+  <pre><code>0.05 × 40% = 2%</code></pre>
+
+  <p>
+    Every token below 2% is discarded. This makes min-p dynamic: when the model is confident, the cutoff becomes stricter; when the model is uncertain, the cutoff relaxes.
+  </p>
+
+  <div class="lis-widget" id="lis-sampler-widget">
+    <h3>Interactive illustration: which tokens survive?</h3>
+    <p class="lis-widget-desc">
+      Switch between top-k, top-p, and min-p. Tokens that get cut cannot be chosen in the final sampling step.
+    </p>
+
+    <div class="lis-controls">
+      <div class="lis-control">
+        <label for="lis-sampler-type">sampler</label>
+        <select id="lis-sampler-type">
+          <option value="topk">top-k</option>
+          <option value="topp">top-p</option>
+          <option value="minp">min-p</option>
+        </select>
+      </div>
+
+      <div class="lis-control" id="lis-topk-control">
+        <label for="lis-topk">k: <span id="lis-topk-val">8</span></label>
+        <input id="lis-topk" type="range" min="1" max="15" step="1" value="8">
+      </div>
+
+      <div class="lis-control" id="lis-topp-control">
+        <label for="lis-topp">p: <span id="lis-topp-val">0.90</span></label>
+        <input id="lis-topp" type="range" min="0.50" max="0.99" step="0.01" value="0.90">
+      </div>
+
+      <div class="lis-control" id="lis-minp-control">
+        <label for="lis-minp">min-p: <span id="lis-minp-val">0.05</span></label>
+        <input id="lis-minp" type="range" min="0.01" max="0.30" step="0.01" value="0.05">
+      </div>
+    </div>
+
+    <div class="lis-callout" id="lis-sampler-summary"></div>
+
+    <table class="lis-sampler-table">
+      <thead>
+        <tr>
+          <th>rank</th>
+          <th>token</th>
+          <th>original probability</th>
+          <th>after filtering</th>
+          <th>status</th>
+        </tr>
+      </thead>
+      <tbody id="lis-sampler-body"></tbody>
+    </table>
+  </div>
+
+  <p>
+    After temperature and sampling filters are applied, the model samples one token from the surviving set.
+  </p>
+
+  <p>
+    That creates a simple mechanical fact: a token can have a real probability in the model’s distribution and still be impossible to output after filtering. Once the sampler removes it, the model cannot choose it in that step.
+  </p>
+
+  <h2>This is where Lost in Sampling comes in</h2>
+
+  <p>
+    The question behind the paper is: are there ordinary human words that LLMs rarely or never get to use because they fail to survive the sampling process? And can we measure how much vocabulary gets cut off by normal decoding settings?
+  </p>
+
+  <p>
+    The paper introduces the <strong>Word Coverage Score</strong>, or <strong>WCS</strong>, to measure lexical reachability under sampling filters.
+  </p>
+
+  <p>
+    The question is mechanical.
+  </p>
+
+  <p>
+    Given a real human sentence where a target word actually appeared, and given the prefix before that word, would the target word survive the sampler at the exact moment the model would need to generate it?
+  </p>
+
+  <p>
+    If the answer is yes, the word is reachable.
+  </p>
+
+  <p>
+    If the answer is no, the word has been pruned. The model could not have generated that human word in that context under that sampler setting, no matter how many times we sampled, because the word was removed before the final choice.
+  </p>
+
+  <p>
+    There is one extra complication: words and tokens are different things.
+  </p>
+
+  <p>
+    A word like <strong>“tyranny”</strong> might be one token in one tokenizer and multiple tokens in another. For a word to count as reachable, every token needed to spell that word has to survive at every step. If the first token survives and the second token gets pruned, the word fails the reachability test.
+  </p>
+
+  <div class="lis-widget" id="lis-wcs-widget">
+    <h3>Interactive illustration: WCS as a reachability test</h3>
+    <p class="lis-widget-desc">
+      Each row is a simplified word-context test. For a word to count as reachable, every token piece needed to produce it has to survive the sampler.
+    </p>
+
+    <div class="lis-controls">
+      <div class="lis-control">
+        <label for="lis-wcs-sampler-type">sampler</label>
+        <select id="lis-wcs-sampler-type">
+          <option value="topk">top-k</option>
+          <option value="topp">top-p</option>
+          <option value="minp">min-p</option>
+        </select>
+      </div>
+
+      <div class="lis-control" id="lis-wcs-topk-control">
+        <label for="lis-wcs-topk">k: <span id="lis-wcs-topk-val">10</span></label>
+        <input id="lis-wcs-topk" type="range" min="1" max="40" step="1" value="10">
+      </div>
+
+      <div class="lis-control" id="lis-wcs-topp-control">
+        <label for="lis-wcs-topp">p: <span id="lis-wcs-topp-val">0.90</span></label>
+        <input id="lis-wcs-topp" type="range" min="0.50" max="0.99" step="0.01" value="0.90">
+      </div>
+
+      <div class="lis-control" id="lis-wcs-minp-control">
+        <label for="lis-wcs-minp">min-p: <span id="lis-wcs-minp-val">0.05</span></label>
+        <input id="lis-wcs-minp" type="range" min="0.01" max="0.30" step="0.01" value="0.05">
+      </div>
+    </div>
+
+    <div class="lis-callout" id="lis-wcs-score"></div>
+
+    <table class="lis-wcs-table">
+      <thead>
+        <tr>
+          <th>human prefix</th>
+          <th>target word</th>
+          <th>token pieces</th>
+          <th>result</th>
+        </tr>
+      </thead>
+      <tbody id="lis-wcs-body"></tbody>
+    </table>
+  </div>
+
+  <p>
+    The protocol starts by choosing target words according to frequency in human writing. The paper focuses on words outside the top 10k but inside the top 40k. That avoids extremely common words while also avoiding words so rare that they become noise. This middle-long-tail band gives words like <strong>“tyranny,” “circulate,”</strong> and <strong>“dubious.”</strong>
+  </p>
+
+  <p>
+    Then each target word is placed back into real human-written contexts. The paper uses PG-19, a corpus of public-domain books, and tests 100 target words across 10 contexts each, for 1,000 word-context trials.
+  </p>
+
+  <p>
+    The model is then given the human-written prefix before the target word. At the exact point where the author used the target word, the audit checks whether the token or tokens needed for that word survive top-k, top-p, or min-p.
+  </p>
+
+  <p>
+    WCS measures availability. It asks whether the word was still present in the candidate set after sampling filters, regardless of whether the model ultimately selected it.
+  </p>
+
+  <p>
+    A high WCS means the target words often survived the sampler.
+  </p>
+
+  <p>
+    A low WCS means many of the target words were cut off.
+  </p>
+
+  <p>
+    A word-level WCS of zero means the word survived in none of its tested contexts under that model and sampler setting. In that experimental setup, the sampler has erased the word from the model’s usable vocabulary.
+  </p>
+
+  <p>
+    WCS is a binary reachability metric. It catches the hard version of lexical loss: cases where a word is removed outright. It does not capture softer cases where a word survives but receives such a low probability that it is almost never sampled. That makes WCS a conservative measure. The full loss of lexical variety may be larger than the score alone shows.
+  </p>
+
+  <p>
+    The result is that sampling settings do more than control “creativity” in the vague interface-slider sense. They form a bottleneck between the vocabulary the model assigns probability to and the vocabulary the model can actually use.
+  </p>
+
+  <p>
+    A model can know the word <strong>“tyranny.”</strong>
+  </p>
+
+  <p>
+    It can assign <strong>“tyranny”</strong> some probability.
+  </p>
+
+  <p>
+    It can have <strong>“tyranny”</strong> in the right semantic neighborhood.
+  </p>
+
+  <p>
+    But if the sampler cuts it off, the word is gone from that generation path.
+  </p>
+
+  <p>
+    Decoding is the final gate between the model’s internal distribution and the text that appears on the screen.
+  </p>
+
+  <p>
+    The tradeoff is real. Looser sampling can preserve more words, but it can also let in more noise. Stricter sampling can improve local coherence, but it can also remove valid, contextually appropriate words.
+  </p>
+
+  <p>
+    The problem is more specific than “LLMs prefer common words.” Common decoding settings can make less common words unreachable even when those words are plausible in the context.
+  </p>
+
+  <p>
+    That is what WCS measures: vocabulary access.
+  </p>
+
+  <p>
+    And if LLM-generated text becomes a larger share of what people read, write, imitate, and train future models on, this matters. A language model that repeatedly loses access to parts of the human lexicon will push generated text toward a narrower band of language.
+  </p>
+
+  <p>
+    The model may carry a wider vocabulary than it gets to use.
+  </p>
+
+  <p>
+    The sampler decides which words survive.
+  </p>
+</article>
+
+<script>
+(function () {
+  function percent(x, digits) {
+    return (x * 100).toFixed(digits ?? 1) + "%";
+  }
+
+  function fmt(x, digits) {
+    return Number(x).toFixed(digits ?? 2);
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function setDisplay(id, value) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
+  function showOnly(activeType, prefix) {
+    var topk = document.getElementById(prefix + "topk-control");
+    var topp = document.getElementById(prefix + "topp-control");
+    var minp = document.getElementById(prefix + "minp-control");
+
+    if (topk) topk.style.display = activeType === "topk" ? "grid" : "none";
+    if (topp) topp.style.display = activeType === "topp" ? "grid" : "none";
+    if (minp) minp.style.display = activeType === "minp" ? "grid" : "none";
+  }
+
+  function softmaxTwo(a, b) {
+    var m = Math.max(a, b);
+    var ea = Math.exp(a - m);
+    var eb = Math.exp(b - m);
+    var sum = ea + eb;
+
+    return {
+      a: ea / sum,
+      b: eb / sum
+    };
+  }
+
+  function updateSoftmaxWidget() {
+    var logitA = parseFloat(document.getElementById("lis-logit-a").value);
+    var logitB = parseFloat(document.getElementById("lis-logit-b").value);
+    var temp = parseFloat(document.getElementById("lis-temp").value);
+
+    var scaledA = logitA / temp;
+    var scaledB = logitB / temp;
+    var gap = scaledA - scaledB;
+    var ratio = Math.exp(gap);
+    var probs = softmaxTwo(scaledA, scaledB);
+
+    setDisplay("lis-logit-a-val", fmt(logitA, 1));
+    setDisplay("lis-logit-b-val", fmt(logitB, 1));
+    setDisplay("lis-temp-val", fmt(temp, 1));
+
+    setDisplay(
+      "lis-softmax-math",
+      "scaled logits: " +
+        fmt(logitA, 1) +
+        " / " +
+        fmt(temp, 1) +
+        " = " +
+        fmt(scaledA, 2) +
+        ", " +
+        fmt(logitB, 1) +
+        " / " +
+        fmt(temp, 1) +
+        " = " +
+        fmt(scaledB, 2) +
+        " | gap = " +
+        fmt(gap, 2) +
+        " | probability ratio = e^gap = " +
+        fmt(ratio, 2) +
+        ":1"
+    );
+
+    document.getElementById("lis-bar-a").style.width = percent(probs.a, 1);
+    document.getElementById("lis-bar-b").style.width = percent(probs.b, 1);
+
+    setDisplay("lis-prob-a", percent(probs.a, 1));
+    setDisplay("lis-prob-b", percent(probs.b, 1));
+  }
+
+  var samplerTokens = [
+    { token: "the", p: 0.300 },
+    { token: "a", p: 0.180 },
+    { token: "popsicle", p: 0.130 },
+    { token: "cheese", p: 0.100 },
+    { token: "tyranny", p: 0.075 },
+    { token: "circulate", p: 0.055 },
+    { token: "dubious", p: 0.040 },
+    { token: "glinting", p: 0.025 },
+    { token: "therefore", p: 0.018 },
+    { token: "—", p: 0.015 },
+    { token: "quarry", p: 0.012 },
+    { token: "murmured", p: 0.010 },
+    { token: "carburetor", p: 0.008 },
+    { token: "unbidden", p: 0.006 },
+    { token: "zither", p: 0.004 },
+    { token: "[all remaining tokens]", p: 0.022 }
+  ];
+
+  function samplerDecision(token, index, cumulativeBefore, settings) {
+    if (settings.type === "topk") {
+      return index < settings.k;
+    }
+
+    if (settings.type === "topp") {
+      return cumulativeBefore < settings.p;
+    }
+
+    if (settings.type === "minp") {
+      return token.p >= settings.minp * settings.topProbability;
+    }
+
+    return true;
+  }
+
+  function updateSamplerWidget() {
+    var type = document.getElementById("lis-sampler-type").value;
+    var k = parseInt(document.getElementById("lis-topk").value, 10);
+    var p = parseFloat(document.getElementById("lis-topp").value);
+    var minp = parseFloat(document.getElementById("lis-minp").value);
+    var topProbability = samplerTokens[0].p;
+
+    showOnly(type, "lis-");
+
+    setDisplay("lis-topk-val", String(k));
+    setDisplay("lis-topp-val", fmt(p, 2));
+    setDisplay("lis-minp-val", fmt(minp, 2));
+
+    var cumulative = 0;
+    var rows = [];
+    var kept = [];
+
+    samplerTokens.forEach(function (token, index) {
+      var cumulativeBefore = cumulative;
+      var survives = samplerDecision(token, index, cumulativeBefore, {
+        type: type,
+        k: k,
+        p: p,
+        minp: minp,
+        topProbability: topProbability
+      });
+
+      cumulative += token.p;
+
+      if (survives) kept.push(token);
+
+      rows.push({
+        rank: index + 1,
+        token: token.token,
+        p: token.p,
+        survives: survives
+      });
+    });
+
+    var keptMass = kept.reduce(function (sum, token) {
+      return sum + token.p;
+    }, 0);
+
+    var summary = "";
+    if (type === "topk") {
+      summary = "Top-k keeps the first " + k + " tokens and cuts everything below rank " + k + ".";
+    } else if (type === "topp") {
+      summary =
+        "Top-p keeps tokens until the cumulative probability reaches " +
+        percent(p, 0) +
+        ". The surviving probability mass is then renormalized.";
+    } else {
+      summary =
+        "Min-p keeps tokens whose probability is at least " +
+        fmt(minp, 2) +
+        " × the top token probability. Here the cutoff is " +
+        percent(minp * topProbability, 2) +
+        ".";
+    }
+
+    document.getElementById("lis-sampler-summary").textContent =
+      summary + " Surviving mass before renormalization: " + percent(keptMass, 1) + ".";
+
+    var body = document.getElementById("lis-sampler-body");
+    body.innerHTML = rows
+      .map(function (row) {
+        var renorm = row.survives ? row.p / keptMass : 0;
+        var cls = row.survives ? "lis-kept" : "lis-cut";
+        var status = row.survives ? "kept" : "cut";
+
+        return (
+          "<tr class='" +
+          cls +
+          "'>" +
+          "<td>" +
+          row.rank +
+          "</td>" +
+          "<td><code>" +
+          escapeHtml(row.token) +
+          "</code></td>" +
+          "<td>" +
+          percent(row.p, 1) +
+          "</td>" +
+          "<td>" +
+          (row.survives ? percent(renorm, 1) : "—") +
+          "</td>" +
+          "<td><span class='lis-pill'>" +
+          status +
+          "</span></td>" +
+          "</tr>"
+        );
+      })
+      .join("");
+  }
+
+  var wcsCases = [
+    {
+      prefix: "no king could maintain his",
+      word: "tyranny",
+      pieces: [
+        { piece: " tyranny", rank: 12, p: 0.018, cumulativeBefore: 0.875, topP: 0.210 }
+      ]
+    },
+    {
+      prefix: "the rumor began to",
+      word: "circulate",
+      pieces: [
+        { piece: " circulate", rank: 7, p: 0.028, cumulativeBefore: 0.810, topP: 0.240 }
+      ]
+    },
+    {
+      prefix: "his answer felt",
+      word: "dubious",
+      pieces: [
+        { piece: " dubious", rank: 24, p: 0.006, cumulativeBefore: 0.930, topP: 0.260 }
+      ]
+    },
+    {
+      prefix: "the collapse was",
+      word: "precipitated",
+      pieces: [
+        { piece: " precip", rank: 8, p: 0.024, cumulativeBefore: 0.790, topP: 0.220 },
+        { piece: "itated", rank: 38, p: 0.002, cumulativeBefore: 0.960, topP: 0.310 }
+      ]
+    }
+  ];
+
+  function pieceSurvives(piece, settings) {
+    if (settings.type === "topk") {
+      return piece.rank <= settings.k;
+    }
+
+    if (settings.type === "topp") {
+      return piece.cumulativeBefore < settings.p;
+    }
+
+    if (settings.type === "minp") {
+      return piece.p >= settings.minp * piece.topP;
+    }
+
+    return true;
+  }
+
+  function describePiece(piece, survives, settings) {
+    var rule = "";
+
+    if (settings.type === "topk") {
+      rule = "rank " + piece.rank + " ≤ k " + settings.k;
+    } else if (settings.type === "topp") {
+      rule = "cumulative before token " + percent(piece.cumulativeBefore, 1) + " < p " + percent(settings.p, 0);
+    } else {
+      rule =
+        percent(piece.p, 2) +
+        " ≥ " +
+        percent(settings.minp * piece.topP, 2) +
+        " cutoff";
+    }
+
+    return (
+      "<div>" +
+      "<code>" +
+      escapeHtml(piece.piece) +
+      "</code> " +
+      "<span class='lis-pill'>" +
+      (survives ? "survives" : "cut") +
+      "</span>" +
+      "<br><small>" +
+      rule +
+      "</small>" +
+      "</div>"
+    );
+  }
+
+  function updateWcsWidget() {
+    var type = document.getElementById("lis-wcs-sampler-type").value;
+    var k = parseInt(document.getElementById("lis-wcs-topk").value, 10);
+    var p = parseFloat(document.getElementById("lis-wcs-topp").value);
+    var minp = parseFloat(document.getElementById("lis-wcs-minp").value);
+
+    showOnly(type, "lis-wcs-");
+
+    setDisplay("lis-wcs-topk-val", String(k));
+    setDisplay("lis-wcs-topp-val", fmt(p, 2));
+    setDisplay("lis-wcs-minp-val", fmt(minp, 2));
+
+    var settings = {
+      type: type,
+      k: k,
+      p: p,
+      minp: minp
+    };
+
+    var reachableCount = 0;
+
+    var rows = wcsCases
+      .map(function (item) {
+        var pieceResults = item.pieces.map(function (piece) {
+          return {
+            piece: piece,
+            survives: pieceSurvives(piece, settings)
+          };
+        });
+
+        var reachable = pieceResults.every(function (result) {
+          return result.survives;
+        });
+
+        if (reachable) reachableCount += 1;
+
+        return (
+          "<tr>" +
+          "<td>“" +
+          escapeHtml(item.prefix) +
+          " ___”</td>" +
+          "<td><strong>" +
+          escapeHtml(item.word) +
+          "</strong></td>" +
+          "<td>" +
+          pieceResults
+            .map(function (result) {
+              return describePiece(result.piece, result.survives, settings);
+            })
+            .join("<hr>") +
+          "</td>" +
+          "<td><span class='lis-pill'>" +
+          (reachable ? "reachable" : "unreachable") +
+          "</span></td>" +
+          "</tr>"
+        );
+      })
+      .join("");
+
+    var score = reachableCount / wcsCases.length;
+
+    document.getElementById("lis-wcs-body").innerHTML = rows;
+    document.getElementById("lis-wcs-score").textContent =
+      "Toy WCS: " +
+      reachableCount +
+      " / " +
+      wcsCases.length +
+      " words reachable = " +
+      percent(score, 0) +
+      ". A word only counts if every token piece survives.";
+  }
+
+  [
+    "lis-logit-a",
+    "lis-logit-b",
+    "lis-temp"
+  ].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener("input", updateSoftmaxWidget);
+  });
+
+  [
+    "lis-sampler-type",
+    "lis-topk",
+    "lis-topp",
+    "lis-minp"
+  ].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener("input", updateSamplerWidget);
+    if (el) el.addEventListener("change", updateSamplerWidget);
+  });
+
+  [
+    "lis-wcs-sampler-type",
+    "lis-wcs-topk",
+    "lis-wcs-topp",
+    "lis-wcs-minp"
+  ].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener("input", updateWcsWidget);
+    if (el) el.addEventListener("change", updateWcsWidget);
+  });
+
+  updateSoftmaxWidget();
+  updateSamplerWidget();
+  updateWcsWidget();
+})();
+</script>
+```
