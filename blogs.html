@@ -1793,6 +1793,8 @@
     $("wcs-minp-val").textContent = num(minp, 2);
     $("wcs-minp-top-val").textContent = pct(top, 0);
     
+    const cutoff = minp * top;
+
     // Render dynamic math equation display
     $("wcs-minp-math").innerHTML = `
       <div class="wcs-live-equations">
@@ -1803,7 +1805,6 @@
       </div>
     `;
 
-    const cutoff = minp * top;
     const kept = minpTokens.filter(t => t.p >= cutoff);
     const keptMass = kept.reduce((sum, t) => sum + t.p, 0);
 
