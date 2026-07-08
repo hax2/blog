@@ -1,4 +1,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Are there words LLMs won’t say?</title>
+<meta name="description" content="A visual explanation of temperature, top-k, top-p, min-p, and Word Context Survival in LLM sampling.">
+<link rel="alternate" type="application/rss+xml" title="Samer's blog RSS feed" href="https://hax2.github.io/blog/feed.xml">
 
 <style>
   html {
@@ -525,6 +528,53 @@
     color: inherit;
   }
 
+  .wcs-subscribe {
+    margin-top: 2.75rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--wcs-border);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  .wcs-subscribe h2 {
+    margin-top: 0;
+  }
+
+  .wcs-subscribe p {
+    max-width: 34rem;
+    color: var(--wcs-muted);
+    font-size: 0.98rem;
+    line-height: 1.55;
+  }
+
+  .wcs-subscribe-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1rem;
+  }
+
+  .wcs-subscribe-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.55rem;
+    border: 1px solid var(--wcs-border);
+    border-radius: 8px;
+    padding: 0.55rem 0.8rem;
+    background: var(--wcs-surface);
+    color: var(--wcs-text);
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+  }
+
+  .wcs-subscribe-button.primary {
+    border-color: var(--wcs-accent);
+    background: var(--wcs-accent);
+    color: #ffffff;
+  }
+
   @media (max-width: 650px) {
     .wcs-post {
       padding: 1.35rem 1.08rem 3.25rem;
@@ -593,6 +643,15 @@
       padding: 0.7rem 0.85rem;
       font-size: 0.88rem;
       line-height: 1.42;
+    }
+
+    .wcs-subscribe {
+      margin-top: 2.35rem;
+    }
+
+    .wcs-subscribe-actions {
+      display: grid;
+      grid-template-columns: 1fr;
     }
 
     #wcs-softmax-widget {
@@ -1082,6 +1141,17 @@
   <p>
     If you’re interested in whatever we publish next or my thoughts on AI, languages, and language learning, you can subscribe to my blog.
   </p>
+
+  <section class="wcs-subscribe" aria-labelledby="wcs-subscribe-title">
+    <h2 id="wcs-subscribe-title">Subscribe</h2>
+    <p>
+      Get new posts through RSS. Email updates can be added once this site is connected to a mailing-list provider.
+    </p>
+    <div class="wcs-subscribe-actions">
+      <a class="wcs-subscribe-button primary" href="feed.xml">RSS feed</a>
+      <a class="wcs-subscribe-button" href="https://github.com/hax2/blog">GitHub</a>
+    </div>
+  </section>
 
 </article>
 
