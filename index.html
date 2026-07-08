@@ -54,6 +54,26 @@
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
+  .wcs-figure {
+    margin: 1.5rem 0 1.8rem;
+  }
+
+  .wcs-figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+  }
+
+  .wcs-figure figcaption {
+    margin-top: 0.45rem;
+    color: #666;
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
   .wcs-equation {
     display: flex;
     justify-content: center;
@@ -635,6 +655,11 @@
     We searched for these words within PG19, a large corpus of human-authored texts. For each word, we extracted its surrounding context and verified with an LLM that the word makes sense in that context. This accounts for OCR or printing errors, and was necessary to automate because we looked at 1,000 contexts.
   </p>
 
+  <figure class="wcs-figure">
+    <img src="assets/wcs-process-overview.png" alt="Overview of the Word Context Survival pipeline: lexical selection, contextual pairing, sampler audit, and metric calculation.">
+    <figcaption>Overview of the Word Context Survival pipeline, from selecting mid-frequency target words to auditing whether sampler filters preserve them in context.</figcaption>
+  </figure>
+
   <p>
     We then tested the logits assigned to each target word in its context across multiple open-weights LLMs. Using this data, we calculated whether the word would survive the initial selection phase under various sampler settings to remain a viable output option. We defined this using a binary reachability formula <strong>R<sub>&theta;</sub>(w, c) &isin; {0, 1}</strong>, which we aggregated into a Word Context Survival score across the corpus:
   </p>
@@ -663,6 +688,11 @@
   <p>
     We believe that with our paper we’ve introduced a way to quantitatively measure the effect of sampler settings on lexical diversity. As LLMs write more of the words we read, it’s important that we don’t lose the nuances and breadth of the language over time based on LLM influence. The effect of this is already visible and measurable, with the popularity of certain words in academic publishing rising and dropping with LLM trends; see <a href="https://arxiv.org/html/2502.09606v2">Geng &amp; Trotta, 2025</a>.
   </p>
+
+  <figure class="wcs-figure">
+    <img src="assets/llm-academic-word-trends.png" alt="Four line charts showing shifts in selected word frequencies in academic abstracts between 2018 and 2025, with markers for December 2022 and March 2024.">
+    <figcaption>Word-frequency shifts in academic abstracts around major LLM adoption periods, illustrating that model-associated language trends can become visible in human-facing text.</figcaption>
+  </figure>
 
   <p>
     At GING we research the limits and capabilities of LLMs, the applications of AI in science, research, psycholinguistics, and education. If you’re looking for collaborators or have ideas you want to discuss, feel free to reach out.
