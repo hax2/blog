@@ -1,5 +1,14 @@
 <style>
   .wcs-post {
+    --wcs-kept-bg: #eef7f3;
+    --wcs-kept-border: #8eb9a6;
+    --wcs-kept-fill: #4f8f73;
+    --wcs-kept-text: #214f3c;
+    --wcs-cut-bg: #f8eeee;
+    --wcs-cut-border: #d8a1a1;
+    --wcs-cut-fill: #d6aaaa;
+    --wcs-cut-text: #7a3434;
+    --wcs-threshold: #b7791f;
     max-width: 820px;
     margin: 0 auto;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -29,6 +38,10 @@
     margin: 1rem 0;
   }
 
+  .wcs-post em {
+    font-style: italic;
+  }
+
   .wcs-post pre {
     background: #f5f5f5;
     border: 1px solid #ddd;
@@ -39,6 +52,50 @@
 
   .wcs-post code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  .wcs-equation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 1.25rem 0;
+    padding: 1rem;
+    background: #fafafa;
+    border: 1px solid #d8d8d8;
+    border-radius: 8px;
+    color: #111;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.2rem;
+    line-height: 1.25;
+    overflow-x: auto;
+  }
+
+  .wcs-frac {
+    display: inline-grid;
+    grid-template-rows: auto auto;
+    align-items: center;
+    min-width: max-content;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .wcs-frac-num {
+    border-bottom: 1.5px solid currentColor;
+    padding: 0 0.45rem 0.18rem;
+  }
+
+  .wcs-frac-den {
+    padding: 0.18rem 0.45rem 0;
+  }
+
+  .wcs-sigma {
+    font-size: 1.45rem;
+    vertical-align: -0.08em;
+  }
+
+  .wcs-brace {
+    font-size: 1.35rem;
   }
 
   .wcs-widget {
@@ -79,11 +136,33 @@
   .wcs-math {
     background: white;
     border: 1px solid #ddd;
-    border-radius: 12px;
-    padding: 0.8rem;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.92rem;
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1rem;
     margin: 1rem 0;
+  }
+
+  .wcs-live-equations {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .wcs-live-equation {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .wcs-live-label {
+    min-width: 8.5rem;
+    color: #555;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 0.86rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
   }
 
   .wcs-token-row {
@@ -99,6 +178,15 @@
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
+  .wcs-topp-row {
+    grid-template-columns: 150px 1fr 155px;
+  }
+
+  .wcs-topp-row .wcs-token-name,
+  .wcs-topp-meta {
+    white-space: nowrap;
+  }
+
   .wcs-bar-shell {
     height: 18px;
     border-radius: 999px;
@@ -110,7 +198,7 @@
     height: 100%;
     width: 0%;
     border-radius: 999px;
-    background: #222;
+    background: var(--wcs-kept-fill);
   }
 
   .wcs-note {
@@ -128,15 +216,17 @@
   }
 
   .wcs-rank-card {
-    border: 1px solid #ccc;
+    border: 1px solid var(--wcs-kept-border);
     border-radius: 12px;
     padding: 0.55rem;
-    background: white;
+    background: var(--wcs-kept-bg);
     min-height: 76px;
   }
 
   .wcs-rank-card.cut {
-    opacity: 0.45;
+    background: var(--wcs-cut-bg);
+    border-color: var(--wcs-cut-border);
+    color: var(--wcs-cut-text);
     text-decoration: line-through;
   }
 
@@ -187,13 +277,13 @@
     font-size: 0.78rem;
     overflow: hidden;
     white-space: nowrap;
-    background: #222;
+    background: var(--wcs-kept-fill);
     color: white;
   }
 
   .wcs-cumulative-segment.cut {
-    background: #ccc;
-    color: #555;
+    background: var(--wcs-cut-fill);
+    color: var(--wcs-cut-text);
   }
 
   .wcs-threshold-line {
@@ -201,7 +291,7 @@
     top: 0;
     bottom: 0;
     width: 3px;
-    background: #d00000;
+    background: var(--wcs-threshold);
   }
 
   .wcs-threshold-label {
@@ -210,7 +300,7 @@
     transform: translateX(6px);
     font-size: 0.78rem;
     font-weight: 700;
-    color: #d00000;
+    color: #7a4a11;
     background: rgba(255, 255, 255, 0.85);
     padding: 0.05rem 0.25rem;
     border-radius: 6px;
@@ -237,18 +327,31 @@
     top: -5px;
     bottom: -5px;
     width: 3px;
-    background: #d00000;
+    background: var(--wcs-threshold);
   }
 
   .wcs-minp-bar {
     height: 100%;
-    background: #222;
+    background: var(--wcs-kept-fill);
     border-radius: 999px;
   }
 
   .wcs-minp-row.cut {
-    opacity: 0.45;
+    color: var(--wcs-cut-text);
     text-decoration: line-through;
+  }
+
+  .wcs-minp-row.cut .wcs-minp-bar {
+    background: var(--wcs-cut-fill);
+  }
+
+  .wcs-token-row.cut {
+    color: var(--wcs-cut-text);
+    text-decoration: line-through;
+  }
+
+  .wcs-token-row.cut .wcs-bar {
+    background: var(--wcs-cut-fill);
   }
 
   .wcs-table {
@@ -272,11 +375,19 @@
 
   .wcs-pill {
     display: inline-block;
-    border: 1px solid #aaa;
+    border: 1px solid var(--wcs-kept-border);
     border-radius: 999px;
     padding: 0.08rem 0.45rem;
     font-size: 0.78rem;
     white-space: nowrap;
+    background: var(--wcs-kept-bg);
+    color: var(--wcs-kept-text);
+  }
+
+  .wcs-pill.cut {
+    border-color: var(--wcs-cut-border);
+    background: var(--wcs-cut-bg);
+    color: var(--wcs-cut-text);
   }
 
   .wcs-sources {
@@ -302,6 +413,11 @@
       gap: 0.25rem;
     }
 
+    .wcs-topp-row .wcs-token-name,
+    .wcs-topp-meta {
+      white-space: normal;
+    }
+
     .wcs-table {
       font-size: 0.8rem;
     }
@@ -312,50 +428,60 @@
   <h1>Are there words LLMs won’t say?</h1>
 
   <p>
-    When an LLM predicts the next token, it reads the context that came before and produces a logit for every token in its vocabulary.
+    In theory, LLMs know and can produce every word in the English language. In practice, LLM writing has lower entropy, meaning it is more predictable, and is less lexically diverse than human writing. The researchers at <a href="https://ging.github.io/">GING</a> set out to investigate one possible reason why an LLM might never produce a specific word, even if it is appropriate for a given context.
   </p>
 
   <p>
-    Each possible next token gets a logit: a raw score before probabilities exist. Softmax uses the gaps between these scores. If <strong>popsicle</strong> gets logit 3 and <strong>cheese</strong> gets logit 1, the gap is 2, and that gap determines how strongly softmax favors <strong>popsicle</strong>.
+    When an LLM predicts the next token, it reads the preceding context and produces a logit for every token in its vocabulary. A token can be a whole word, a piece of a word, punctuation, a space, or any other text fragment. For example, Llama 3 has a vocabulary of 128,256 possible tokens. When inferring the next token, each of these options is assigned a logit.
   </p>
 
   <p>
-    For Llama 3, the vocabulary has 128k tokens. These include whole words, word pieces, punctuation, spaces, and other text fragments.
+    The logit isn’t a probability but a raw numerical score. A function called softmax turns the logits into probabilities by raising the mathematical constant <strong>e</strong> to the power of each logit, then dividing that value by the sum of all the exponentiated logits.
+  </p>
+
+  <div class="wcs-equation" aria-label="Probability sub i equals e to the logit sub i divided by the sum over j of e to the logit sub j">
+    <span>P<sub>i</sub> =</span>
+    <span class="wcs-frac">
+      <span class="wcs-frac-num">e<sup>logit<sub>i</sub></sup></span>
+      <span class="wcs-frac-den"><span class="wcs-sigma">&Sigma;</span><sub>j</sub> e<sup>logit<sub>j</sub></sup></span>
+    </span>
+  </div>
+
+  <p>
+    Softmax scales based on the raw numerical gap between two numbers, not their ratio. For example, 4:2 and 2:1 represent the same ratio, but the absolute gaps are different: <strong>4 - 2 = 2</strong>, while <strong>2 - 1 = 1</strong>.
+  </p>
+
+  <ul>
+    <li>Applying softmax to <strong>[4, 2]</strong> gives approximately <strong>[0.881, 0.119]</strong>.</li>
+    <li>Applying softmax to <strong>[2, 1]</strong> gives approximately <strong>[0.731, 0.269]</strong>.</li>
+  </ul>
+
+  <p>
+    Even though the ratios are identical, the larger absolute gap makes the higher value much more dominant after softmax is applied.
   </p>
 
   <p>
-    If the LLM always chooses the token with the highest score, this is called <strong>greedy decoding</strong>.
+    Temperature is a variable adjusted during inference, usually treated as a creativity parameter. Increasing the temperature makes the output more varied, while decreasing it makes the model's outputs more deterministic. At <strong>T = 0</strong>, the model enters greedy sampling and always chooses the token with the highest logit.
   </p>
 
   <p>
-    Temperature is an inference-time setting. It is usually treated as a creativity parameter: higher temperature makes the output more varied, while lower temperature makes the output more predictable. At <strong>T = 0</strong>, the model uses greedy decoding and selects the highest-scoring token.
+    During inference, the temperature value scales the logits by dividing each logit by <strong>T</strong>:
+  </p>
+
+  <div class="wcs-equation" aria-label="Scaled logit sub i equals logit sub i divided by T">
+    <span>scaled logit<sub>i</sub> =</span>
+    <span class="wcs-frac">
+      <span class="wcs-frac-num">logit<sub>i</sub></span>
+      <span class="wcs-frac-den">T</span>
+    </span>
+  </div>
+
+  <p>
+    Suppose the prompt is: <strong>A lot of things happened! The first day of the conference was quite</strong>. If <strong>interesting</strong> gets logit 4 and <strong>long</strong> gets logit 2, softmax heavily favors <strong>interesting</strong>. If we set <strong>T = 2</strong>, those logits become <strong>[2, 1]</strong>. The gap narrows, and the probability curve is flattened, reducing the disparity in likelihood between the two options.
   </p>
 
   <p>
-    For values above zero, temperature works by dividing the logits before softmax. Lower temperatures stretch the gaps between logits. Higher temperatures compress them.
-  </p>
-
-  <p>
-    Imagine the word <strong>popsicle</strong> gets the logit 3 and the word <strong>cheese</strong> gets the logit 1.
-  </p>
-
-  <p>
-    If we set the temperature to 2, each logit is divided by 2 before being converted into a probability:
-  </p>
-
-  <pre><code>popsicle: 3 / 2 → 1.5
-cheese:   1 / 2 → 0.5</code></pre>
-
-  <p>The gap was originally:</p>
-
-  <pre><code>3 - 1 = 2</code></pre>
-
-  <p>After temperature scaling, the gap is:</p>
-
-  <pre><code>1.5 - 0.5 = 1</code></pre>
-
-  <p>
-    Softmax turns logit gaps into probability ratios. A gap of 2 gives a ratio of <em>e²</em>. A gap of 1 gives a ratio of <em>e¹</em>. When temperature shrinks the gap, the probabilities move closer together.
+    Raising the temperature makes the model less concentrated on its top choice. The most likely token becomes less dominant, giving lower-probability tokens a higher chance of selection.
   </p>
 
   <div class="wcs-widget" id="wcs-softmax-widget">
@@ -366,13 +492,13 @@ cheese:   1 / 2 → 0.5</code></pre>
 
     <div class="wcs-controls">
       <div class="wcs-control">
-        <label for="wcs-logit-a">popsicle logit: <span id="wcs-logit-a-val">3.0</span></label>
-        <input id="wcs-logit-a" type="range" min="-5" max="8" step="0.1" value="3">
+        <label for="wcs-logit-a">interesting logit: <span id="wcs-logit-a-val">4.0</span></label>
+        <input id="wcs-logit-a" type="range" min="-5" max="8" step="0.1" value="4">
       </div>
 
       <div class="wcs-control">
-        <label for="wcs-logit-b">cheese logit: <span id="wcs-logit-b-val">1.0</span></label>
-        <input id="wcs-logit-b" type="range" min="-5" max="8" step="0.1" value="1">
+        <label for="wcs-logit-b">long logit: <span id="wcs-logit-b-val">2.0</span></label>
+        <input id="wcs-logit-b" type="range" min="-5" max="8" step="0.1" value="2">
       </div>
 
       <div class="wcs-control">
@@ -384,46 +510,21 @@ cheese:   1 / 2 → 0.5</code></pre>
     <div class="wcs-math" id="wcs-softmax-math"></div>
 
     <div class="wcs-token-row">
-      <div class="wcs-token-name">popsicle</div>
+      <div class="wcs-token-name">interesting</div>
       <div class="wcs-bar-shell"><div class="wcs-bar" id="wcs-bar-a"></div></div>
       <div id="wcs-prob-a">73.1%</div>
     </div>
 
     <div class="wcs-token-row">
-      <div class="wcs-token-name">cheese</div>
+      <div class="wcs-token-name">long</div>
       <div class="wcs-bar-shell"><div class="wcs-bar" id="wcs-bar-b"></div></div>
       <div id="wcs-prob-b">26.9%</div>
     </div>
   </div>
 
   <p>
-    To turn the logits into probabilities, we use <strong>softmax</strong>. Softmax raises the mathematical constant <strong>e</strong> to the power of each logit, then divides that value by the sum of all the exponentiated logits.
-  </p>
-
-  <p>
-    In the example above, with temperature set to 2, the probabilities become:
-  </p>
-
-  <pre><code>popsicle: 73%
-cheese:   27%</code></pre>
-
-  <p>
-    With temperature set to 1, they become:
-  </p>
-
-  <pre><code>popsicle: 88%
-cheese:   12%</code></pre>
-
-  <p>
-    Increasing temperature flattens the probability distribution, giving lower-ranked tokens a better chance of being sampled. Decreasing temperature sharpens the distribution around the highest-scoring tokens.
-  </p>
-
-  <p>
-    A lower-probability token still has to survive the sampler.
-  </p>
-
-  <p>
-    Sampling filters reduce the set of possible tokens the model can choose from. Before filtering, every token has some probability, even if that probability is tiny. After filtering, many tokens are removed from the final choice.
+    But a token can only be chosen if it survives the sampling filter first.
+    Before filtering, every token has some probability, even if that probability is tiny. Sampling filters cut that huge list down to a smaller set of allowed tokens. Then the model randomly chooses from the remaining tokens, weighted by their probabilities.
   </p>
 
   <p>
@@ -461,11 +562,11 @@ cheese:   12%</code></pre>
     So if the top token has probability 40%, the kept set starts at 40%. If the second token has 20%, the kept set grows to 60%. If the third has 12%, it grows to 72%. The model keeps walking down the ranked list until the running total reaches the top-p threshold. After that, the surviving probabilities are renormalized so they add up to 100%.
   </p>
 
-  <div class="wcs-widget" id="wcs-topp-widget">
-    <h3>Top-p keeps tokens until the running total reaches p</h3>
-    <p>
-      The dark segments survive. The grey segments are beyond the cutoff. The red line is the p threshold.
-    </p>
+	  <div class="wcs-widget" id="wcs-topp-widget">
+	    <h3>Top-p keeps tokens until the running total reaches p</h3>
+	    <p>
+	      Green segments survive. Muted red segments are beyond the cutoff. The amber line is the p threshold.
+	    </p>
 
     <div class="wcs-control">
       <label for="wcs-topp">p: <span id="wcs-topp-val">0.90</span></label>
@@ -494,15 +595,22 @@ cheese:   12%</code></pre>
     Every token below 2% is discarded. This makes min-p dynamic. When the top token is very strong, the cutoff becomes stricter. When the top token is weaker, the cutoff relaxes.
   </p>
 
-  <div class="wcs-widget" id="wcs-minp-widget">
-    <h3>Min-p keeps tokens above a threshold relative to the top token</h3>
-    <p>
-      The red line is the cutoff. Tokens whose bars do not reach it are removed.
-    </p>
+	  <div class="wcs-widget" id="wcs-minp-widget">
+	    <h3>Min-p keeps tokens above a threshold relative to the top token</h3>
+	    <p>
+	      The amber line is the cutoff. Green bars survive; muted red bars are removed.
+	    </p>
 
-    <div class="wcs-control">
-      <label for="wcs-minp">min-p: <span id="wcs-minp-val">0.05</span></label>
-      <input id="wcs-minp" type="range" min="0.01" max="0.30" step="0.01" value="0.05">
+    <div class="wcs-controls">
+      <div class="wcs-control">
+        <label for="wcs-minp">min-p: <span id="wcs-minp-val">0.05</span></label>
+        <input id="wcs-minp" type="range" min="0.01" max="0.30" step="0.01" value="0.05">
+      </div>
+
+      <div class="wcs-control">
+        <label for="wcs-minp-top">top token probability: <span id="wcs-minp-top-val">40%</span></label>
+        <input id="wcs-minp-top" type="range" min="0.25" max="0.80" step="0.01" value="0.40">
+      </div>
     </div>
 
     <div class="wcs-note" id="wcs-minp-summary"></div>
@@ -517,225 +625,73 @@ cheese:   12%</code></pre>
     A token can have a real probability in the model’s distribution and still become impossible to output after filtering. Once the sampler removes it, the model cannot choose it in that step.
   </p>
 
-  <h2>Word Coverage Score</h2>
+  <h2>Word Context Survival</h2>
 
   <p>
-    The question behind <strong>Lost in Sampling</strong> is: are there ordinary human words that LLMs rarely or never get to use because they fail to survive the sampling process? And can we measure how much vocabulary gets cut off by normal decoding settings?
+    We recently published a paper investigating whether common sampler settings filter out relatively common English words, rendering them impossible for LLMs to generate. We began by defining a frequency range of 10k to 40k on a word frequency list. These words are common enough that a human author uses them naturally. Examples closer to the 10k rank include <em>poison</em>, <em>ethnicity</em>, <em>tourists</em>, <em>fatigue</em>, <em>coil</em>, and <em>consuming</em>. On the rarer end, approaching the 40k rank, examples include <em>instinctively</em>, <em>stiletto</em>, <em>eventful</em>, <em>lobsters</em>, <em>moustache</em>, <em>coals</em>, and <em>succulent</em>. We randomly selected 100 words from this range; the full list is available <a href="https://wordsgpt.github.io/WCS/word_list.html">here</a>.
   </p>
 
   <p>
-    The paper introduces the <strong>Word Coverage Score</strong>, or <strong>WCS</strong>, to measure lexical reachability under sampling filters.
+    We searched for these words within PG19, a large corpus of human-authored texts. For each word, we extracted its surrounding context and verified with an LLM that the word makes sense in that context. This accounts for OCR or printing errors, and was necessary to automate because we looked at 1,000 contexts.
   </p>
 
   <p>
-    The question is mechanical.
+    We then tested the logits assigned to each target word in its context across multiple open-weights LLMs. Using this data, we calculated whether the word would survive the initial selection phase under various sampler settings to remain a viable output option. We defined this using a binary reachability formula <strong>R<sub>&theta;</sub>(w, c) &isin; {0, 1}</strong>, which we aggregated into a Word Context Survival score across the corpus:
   </p>
 
-  <p>
-    Given a real human sentence where a target word actually appeared, and given the prefix before that word, would the target word survive the sampler at the exact moment the model would need to generate it?
-  </p>
-
-  <p>
-    If the answer is yes, the word is reachable.
-  </p>
-
-  <p>
-    If the answer is no, the word has been pruned. The model could not have generated that human word in that context under that sampler setting, no matter how many times we sampled, because the word was removed before the final choice.
-  </p>
-
-  <p>
-    There is one extra complication: words and tokens are different things.
-  </p>
-
-  <p>
-    A word like <strong>tyranny</strong> might be one token in one tokenizer and multiple tokens in another. For a word to count as reachable, every token needed to spell that word has to survive at every step. If the first token survives and the second token gets pruned, the word fails the reachability test.
-  </p>
-
-  <div class="wcs-widget" id="wcs-reachability-widget">
-    <h3>WCS checks whether the whole word survives</h3>
-    <p>
-      Each row is a simplified word-context test. A word only counts as reachable if every token piece survives.
-    </p>
-
-    <div class="wcs-controls">
-      <div class="wcs-control">
-        <label for="wcs-reach-type">sampler</label>
-        <select id="wcs-reach-type">
-          <option value="topk">top-k</option>
-          <option value="topp">top-p</option>
-          <option value="minp">min-p</option>
-        </select>
-      </div>
-
-      <div class="wcs-control" id="wcs-reach-topk-control">
-        <label for="wcs-reach-topk">k: <span id="wcs-reach-topk-val">10</span></label>
-        <input id="wcs-reach-topk" type="range" min="1" max="40" step="1" value="10">
-      </div>
-
-      <div class="wcs-control" id="wcs-reach-topp-control">
-        <label for="wcs-reach-topp">p: <span id="wcs-reach-topp-val">0.90</span></label>
-        <input id="wcs-reach-topp" type="range" min="0.50" max="0.99" step="0.01" value="0.90">
-      </div>
-
-      <div class="wcs-control" id="wcs-reach-minp-control">
-        <label for="wcs-reach-minp">min-p: <span id="wcs-reach-minp-val">0.05</span></label>
-        <input id="wcs-reach-minp" type="range" min="0.01" max="0.30" step="0.01" value="0.05">
-      </div>
-    </div>
-
-    <div class="wcs-note" id="wcs-reach-summary"></div>
-
-    <table class="wcs-table">
-      <thead>
-        <tr>
-          <th>human prefix</th>
-          <th>target word</th>
-          <th>token pieces</th>
-          <th>result</th>
-        </tr>
-      </thead>
-      <tbody id="wcs-reach-body"></tbody>
-    </table>
+  <div class="wcs-equation" aria-label="Word Context Survival theta equals one over the size of D times the sum of reach of w c">
+    <span>WCS<sub>&theta;</sub> =</span>
+    <span class="wcs-frac">
+      <span class="wcs-frac-num">1</span>
+      <span class="wcs-frac-den">|D|</span>
+    </span>
+    <span><span class="wcs-sigma">&Sigma;</span> reach(w, c)</span>
   </div>
 
   <p>
-    The protocol starts by choosing target words according to frequency in human writing. The paper focuses on words outside the top 10k but inside the top 40k. That avoids extremely common words while also avoiding words so rare that they become noise. This middle-long-tail band gives words like <strong>tyranny</strong>, <strong>circulate</strong>, and <strong>dubious</strong>.
+    When sampler constraints are drastically loosened, allowing more tokens to survive sampling filters, most models predicted the majority of the words in at least one context. This confirms the models possess the vocabulary and are capable of producing the target word in the human context.
   </p>
 
   <p>
-    Then each target word is placed back into real human-written contexts. The paper uses PG-19, a corpus of public-domain books, and tests 100 target words across 10 contexts each, for 1,000 word-context trials.
+    However, at default recommended settings, every tested model failed to predict a portion of the 100 words across all given contexts. In these cases, the word was unreachable for the model in every human context provided. The percentage of words not predicted a single time at default settings ranged from 20% to 45%; interactive visualizers of these results can be viewed <a href="https://wordsgpt.github.io/WCS/index.html">here</a>.
   </p>
 
   <p>
-    The model is then given the human-written prefix before the target word. At the exact point where the author used the target word, the audit checks whether the token or tokens needed for that word survive top-k, top-p, or min-p.
+    We also evaluated the impact of temperature (<strong>T</strong>). Under top-p sampling, raising <strong>T</strong> from 0.7 to 1.0 yielded a significant increase in WCS, with diminishing returns as <strong>T</strong> approached 1.5. Because top-k sampling is purely rank-order based, the set of tokens it filters is entirely unaffected by temperature. Min-p proved less sensitive to temperature scaling than top-p; scaling <strong>T</strong> from 0.7 to 1.5 was required to increase the WCS for Llama-3.1-8B from 32.8% to 57.2%, whereas top-p achieves similar absolute gains merely scaling from 0.7 to 1.0.
   </p>
 
   <p>
-    WCS ignores the final random choice and checks the candidate set. It asks whether the word was still available after sampling filters.
+    We believe that with our paper we’ve introduced a way to quantitatively measure the effect of sampler settings on lexical diversity. As LLMs write more of the words we read, it’s important that we don’t lose the nuances and breadth of the language over time based on LLM influence. The effect of this is already visible and measurable, with the popularity of certain words in academic publishing rising and dropping with LLM trends; see <a href="https://arxiv.org/html/2502.09606v2">Geng &amp; Trotta, 2025</a>.
   </p>
 
   <p>
-    A high WCS means the target words often survived the sampler.
+    At GING we research the limits and capabilities of LLMs, the applications of AI in science, research, psycholinguistics, and education. If you’re looking for collaborators or have ideas you want to discuss, feel free to reach out.
   </p>
 
   <p>
-    A low WCS means many of the target words were cut off.
+    If you’re interested in whatever we publish next or my thoughts on AI, languages, and language learning, you can subscribe to my blog.
   </p>
 
-  <p>
-    A word-level WCS of zero means the word survived in none of its tested contexts under that model and sampler setting. In that experimental setup, the sampler has erased the word from the model’s usable vocabulary.
-  </p>
-
-  <p>
-    WCS is a binary reachability metric. It catches the hard version of lexical loss: cases where a word is removed outright. It does not capture softer cases where a word survives but receives such a low probability that it is almost never sampled. That makes WCS a conservative measure. The full loss of lexical variety may be larger than the score alone shows.
-  </p>
-
-  <p>
-    Sampling settings form a bottleneck between the vocabulary the model assigns probability to and the vocabulary the model can actually use.
-  </p>
-
-  <p>
-    A model can know the word <strong>tyranny</strong>.
-  </p>
-
-  <p>
-    It can assign <strong>tyranny</strong> some probability.
-  </p>
-
-  <p>
-    It can have <strong>tyranny</strong> in the right semantic neighborhood.
-  </p>
-
-  <p>
-    But if the sampler cuts it off, the word is gone from that generation path.
-  </p>
-
-  <p>
-    Decoding is the final gate between the model’s internal distribution and the text that appears on the screen.
-  </p>
-
-  <p>
-    The tradeoff is real. Looser sampling can preserve more words, but it can also let in more noise. Stricter sampling can improve local coherence, but it can also remove valid, contextually appropriate words.
-  </p>
-
-  <p>
-    Common decoding settings can make rare-but-plausible words unreachable.
-  </p>
-
-  <p>
-    That is what WCS measures: vocabulary access.
-  </p>
-
-  <p>
-    And if LLM-generated text becomes a larger share of what people read, write, imitate, and train future models on, this matters. A language model that repeatedly loses access to parts of the human lexicon will push generated text toward a narrower band of language.
-  </p>
-
-  <p>
-    The model may carry a wider vocabulary than it gets to use.
-  </p>
-
-  <p>
-    The sampler decides which words survive.
-  </p>
-
-  <div class="wcs-sources">
-    Sources: <a href="https://arxiv.org/abs/2605.27268">Lost in Sampling</a>,
-    <a href="https://arxiv.org/abs/1904.09751">nucleus sampling</a>,
-    <a href="https://arxiv.org/abs/2407.01082">min-p sampling</a>,
-    <a href="https://ai.meta.com/blog/meta-llama-3/">Llama 3 tokenizer/vocabulary</a>.
-  </div>
 </article>
 
 <script>
 (function () {
   const tokens = [
-    { token: "the", p: 0.40 },
-    { token: "a", p: 0.20 },
-    { token: "popsicle", p: 0.12 },
-    { token: "cheese", p: 0.08 },
-    { token: "tyranny", p: 0.05 },
-    { token: "circulate", p: 0.04 },
-    { token: "dubious", p: 0.03 },
-    { token: "glinting", p: 0.02 },
-    { token: "therefore", p: 0.015 },
-    { token: "quarry", p: 0.012 },
-    { token: "murmured", p: 0.01 },
-    { token: "unbidden", p: 0.008 },
-    { token: "zither", p: 0.006 },
-    { token: "carburetor", p: 0.005 },
-    { token: "remaining", p: 0.014 }
-  ];
-
-  const reachCases = [
-    {
-      prefix: "no king could maintain his",
-      word: "tyranny",
-      pieces: [
-        { piece: " tyranny", rank: 12, p: 0.018, cumulativeBefore: 0.875, topP: 0.210 }
-      ]
-    },
-    {
-      prefix: "the rumor began to",
-      word: "circulate",
-      pieces: [
-        { piece: " circulate", rank: 7, p: 0.028, cumulativeBefore: 0.810, topP: 0.240 }
-      ]
-    },
-    {
-      prefix: "his answer felt",
-      word: "dubious",
-      pieces: [
-        { piece: " dubious", rank: 24, p: 0.006, cumulativeBefore: 0.930, topP: 0.260 }
-      ]
-    },
-    {
-      prefix: "the collapse was",
-      word: "precipitated",
-      pieces: [
-        { piece: " precip", rank: 8, p: 0.024, cumulativeBefore: 0.790, topP: 0.220 },
-        { piece: "itated", rank: 38, p: 0.002, cumulativeBefore: 0.960, topP: 0.310 }
-      ]
-    }
+    { token: "busy", p: 0.40 },
+    { token: "boring", p: 0.20 },
+    { token: "a", p: 0.12 },
+    { token: "interesting", p: 0.08 },
+    { token: "exciting", p: 0.05 },
+    { token: "hectic", p: 0.04 },
+    { token: "different", p: 0.03 },
+    { token: "good", p: 0.02 },
+    { token: "chaotic", p: 0.015 },
+    { token: "event", p: 0.012 },
+    { token: "difficult", p: 0.01 },
+    { token: "long", p: 0.008 },
+    { token: "intense", p: 0.006 },
+    { token: "t", p: 0.005 },
+    { token: "an", p: 0.004 }
   ];
 
   function $(id) {
@@ -782,24 +738,24 @@ cheese:   12%</code></pre>
     $("wcs-logit-b-val").textContent = num(logitB, 1);
     $("wcs-temp-val").textContent = num(temp, 1);
 
-    $("wcs-softmax-math").textContent =
-      "scaled logits: " +
-      num(logitA, 1) +
-      " / " +
-      num(temp, 1) +
-      " = " +
-      num(scaledA, 2) +
-      ", " +
-      num(logitB, 1) +
-      " / " +
-      num(temp, 1) +
-      " = " +
-      num(scaledB, 2) +
-      " | scaled gap = " +
-      num(gap, 2) +
-      " | probability ratio = e^gap = " +
-      num(ratio, 2) +
-      ":1";
+    $("wcs-softmax-math").innerHTML = `
+      <div class="wcs-live-equations">
+        <div class="wcs-live-equation">
+          <span class="wcs-live-label">Scaled logits</span>
+          <span>${num(logitA, 1)} / ${num(temp, 1)} = ${num(scaledA, 2)}</span>
+          <span>and</span>
+          <span>${num(logitB, 1)} / ${num(temp, 1)} = ${num(scaledB, 2)}</span>
+        </div>
+        <div class="wcs-live-equation">
+          <span class="wcs-live-label">Scaled gap</span>
+          <span>${num(scaledA, 2)} - ${num(scaledB, 2)} = ${num(gap, 2)}</span>
+        </div>
+        <div class="wcs-live-equation">
+          <span class="wcs-live-label">Probability ratio</span>
+          <span>e<sup>${num(gap, 2)}</sup> = ${num(ratio, 2)} : 1</span>
+        </div>
+      </div>
+    `;
 
     $("wcs-bar-a").style.width = pct(probs.a);
     $("wcs-bar-b").style.width = pct(probs.b);
@@ -874,12 +830,12 @@ cheese:   12%</code></pre>
       running += t.p;
       const survives = i <= cutoffIndex;
       return `
-        <div class="wcs-token-row ${survives ? "" : "cut"}">
+        <div class="wcs-token-row wcs-topp-row ${survives ? "" : "cut"}">
           <div class="wcs-token-name">${i + 1}. ${html(t.token)}</div>
           <div class="wcs-bar-shell">
             <div class="wcs-bar" style="width: ${pct(t.p / tokens[0].p)}"></div>
           </div>
-          <div>${pct(t.p)} | cum ${pct(running)}</div>
+          <div class="wcs-topp-meta">${pct(t.p)} | cum ${pct(running)}</div>
         </div>
       `;
     }).join("");
@@ -887,11 +843,19 @@ cheese:   12%</code></pre>
 
   function updateMinP() {
     const minp = parseFloat($("wcs-minp").value);
-    $("wcs-minp-val").textContent = num(minp, 2);
+    const top = parseFloat($("wcs-minp-top").value);
+    const tailMass = tokens.slice(1).reduce((sum, t) => sum + t.p, 0);
+    const tailScale = (1 - top) / tailMass;
+    const minpTokens = tokens.map((t, i) => {
+      if (i === 0) return { ...t, p: top };
+      return { ...t, p: t.p * tailScale };
+    });
 
-    const top = tokens[0].p;
+    $("wcs-minp-val").textContent = num(minp, 2);
+    $("wcs-minp-top-val").textContent = pct(top, 0);
+
     const cutoff = minp * top;
-    const kept = tokens.filter(t => t.p >= cutoff);
+    const kept = minpTokens.filter(t => t.p >= cutoff);
     const keptMass = kept.reduce((sum, t) => sum + t.p, 0);
 
     $("wcs-minp-summary").textContent =
@@ -909,7 +873,7 @@ cheese:   12%</code></pre>
       pct(keptMass) +
       " total mass before renormalization.";
 
-    $("wcs-minp-list").innerHTML = tokens.map((t) => {
+    $("wcs-minp-list").innerHTML = minpTokens.map((t) => {
       const survives = t.p >= cutoff;
       const width = t.p / top;
       const cutoffPos = cutoff / top;
@@ -922,92 +886,10 @@ cheese:   12%</code></pre>
             <div class="wcs-minp-bar" style="width: ${pct(width, 3)}"></div>
           </div>
           <div>${pct(t.p)}</div>
-          <div><span class="wcs-pill">${survives ? "kept" : "cut"}</span></div>
+          <div><span class="wcs-pill ${survives ? "" : "cut"}">${survives ? "kept" : "cut"}</span></div>
         </div>
       `;
     }).join("");
-  }
-
-  function showReachControls(type) {
-    $("wcs-reach-topk-control").style.display = type === "topk" ? "grid" : "none";
-    $("wcs-reach-topp-control").style.display = type === "topp" ? "grid" : "none";
-    $("wcs-reach-minp-control").style.display = type === "minp" ? "grid" : "none";
-  }
-
-  function pieceSurvives(piece, settings) {
-    if (settings.type === "topk") return piece.rank <= settings.k;
-    if (settings.type === "topp") return piece.cumulativeBefore < settings.p;
-    if (settings.type === "minp") return piece.p >= settings.minp * piece.topP;
-    return true;
-  }
-
-  function pieceExplanation(piece, survives, settings) {
-    let rule = "";
-
-    if (settings.type === "topk") {
-      rule = "rank " + piece.rank + " ≤ k " + settings.k;
-    }
-
-    if (settings.type === "topp") {
-      rule = "cumulative before piece: " + pct(piece.cumulativeBefore) + " < p " + pct(settings.p, 0);
-    }
-
-    if (settings.type === "minp") {
-      rule = pct(piece.p, 2) + " ≥ cutoff " + pct(settings.minp * piece.topP, 2);
-    }
-
-    return `
-      <div>
-        <code>${html(piece.piece)}</code>
-        <span class="wcs-pill">${survives ? "survives" : "cut"}</span>
-        <br>
-        <small>${rule}</small>
-      </div>
-    `;
-  }
-
-  function updateReachability() {
-    const type = $("wcs-reach-type").value;
-    const k = parseInt($("wcs-reach-topk").value, 10);
-    const p = parseFloat($("wcs-reach-topp").value);
-    const minp = parseFloat($("wcs-reach-minp").value);
-
-    $("wcs-reach-topk-val").textContent = k;
-    $("wcs-reach-topp-val").textContent = num(p, 2);
-    $("wcs-reach-minp-val").textContent = num(minp, 2);
-
-    showReachControls(type);
-
-    const settings = { type, k, p, minp };
-    let reachableCount = 0;
-
-    $("wcs-reach-body").innerHTML = reachCases.map((item) => {
-      const results = item.pieces.map(piece => ({
-        piece,
-        survives: pieceSurvives(piece, settings)
-      }));
-
-      const reachable = results.every(r => r.survives);
-      if (reachable) reachableCount++;
-
-      return `
-        <tr>
-          <td>“${html(item.prefix)} ___”</td>
-          <td><strong>${html(item.word)}</strong></td>
-          <td>${results.map(r => pieceExplanation(r.piece, r.survives, settings)).join("<hr>")}</td>
-          <td><span class="wcs-pill">${reachable ? "reachable" : "unreachable"}</span></td>
-        </tr>
-      `;
-    }).join("");
-
-    $("wcs-reach-summary").textContent =
-      "Toy WCS: " +
-      reachableCount +
-      " / " +
-      reachCases.length +
-      " words reachable = " +
-      pct(reachableCount / reachCases.length, 0) +
-      ". A word only counts if every token piece survives.";
   }
 
   [
@@ -1021,21 +903,11 @@ cheese:   12%</code></pre>
   $("wcs-topk").addEventListener("input", updateTopK);
   $("wcs-topp").addEventListener("input", updateTopP);
   $("wcs-minp").addEventListener("input", updateMinP);
-
-  [
-    "wcs-reach-type",
-    "wcs-reach-topk",
-    "wcs-reach-topp",
-    "wcs-reach-minp"
-  ].forEach(id => {
-    $(id).addEventListener("input", updateReachability);
-    $(id).addEventListener("change", updateReachability);
-  });
+  $("wcs-minp-top").addEventListener("input", updateMinP);
 
   updateSoftmax();
   updateTopK();
   updateTopP();
   updateMinP();
-  updateReachability();
 })();
 </script>
