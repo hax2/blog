@@ -2,6 +2,9 @@
 <title>Are there words LLMs won’t say?</title>
 <meta name="description" content="A visual explanation of temperature, top-k, top-p, min-p, and Word Context Survival in LLM sampling.">
 <link rel="alternate" type="application/rss+xml" title="Samer's blog RSS feed" href="https://hax2.github.io/blog/feed.xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&display=swap">
 
 <style>
   html {
@@ -39,7 +42,6 @@
     margin: 0 auto;
     padding: 3rem 1.35rem 4.5rem;
     background: var(--wcs-page-bg);
-    font-family: Charter, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
     font-size: 1.12rem;
     line-height: 1.76;
     color: var(--wcs-text);
@@ -64,7 +66,7 @@
 
   .wcs-post h1 {
     max-width: 12ch;
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: clamp(2.25rem, 7vw, 4.2rem);
     line-height: 0.98;
     letter-spacing: 0;
@@ -73,14 +75,13 @@
   }
 
   .wcs-post > p:first-of-type {
-    max-width: 34rem;
     color: #2f3940;
     font-size: clamp(1.16rem, 2.4vw, 1.3rem);
     line-height: 1.58;
   }
 
   .wcs-post h2 {
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: clamp(1.35rem, 3vw, 1.7rem);
     line-height: 1.18;
     letter-spacing: 0;
@@ -89,7 +90,7 @@
   }
 
   .wcs-post h3 {
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 1.05rem;
     line-height: 1.25;
     margin: 0 0 0.35rem;
@@ -532,7 +533,7 @@
     margin-top: 2.75rem;
     padding-top: 1.2rem;
     border-top: 1px solid var(--wcs-border);
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   }
 
   .wcs-subscribe h2 {
@@ -582,6 +583,19 @@
     border-color: var(--wcs-accent);
     background: var(--wcs-accent);
     color: #ffffff;
+  }
+
+  @media (min-width: 651px) {
+    .wcs-post {
+      font-family: "EB Garamond", "Iowan Old Style", "Garamond", "Palatino Linotype", Palatino, Georgia, serif;
+    }
+
+    .wcs-post h1,
+    .wcs-post h2,
+    .wcs-post h3,
+    .wcs-subscribe {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
   }
 
   @media (max-width: 650px) {
