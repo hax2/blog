@@ -553,6 +553,21 @@
     margin-top: 1rem;
   }
 
+  .wcs-mailoctopus-form {
+    max-width: 34rem;
+    margin-top: 1rem;
+  }
+
+  .wcs-mailoctopus-form:empty {
+    min-height: 3.2rem;
+  }
+
+  .wcs-subscribe-secondary {
+    margin-top: 0.8rem;
+    font-size: 0.9rem;
+    color: var(--wcs-muted);
+  }
+
   .wcs-subscribe-button {
     display: inline-flex;
     align-items: center;
@@ -652,6 +667,10 @@
     .wcs-subscribe-actions {
       display: grid;
       grid-template-columns: 1fr;
+    }
+
+    .wcs-mailoctopus-form {
+      max-width: none;
     }
 
     #wcs-softmax-widget {
@@ -1145,12 +1164,19 @@
   <section class="wcs-subscribe" aria-labelledby="wcs-subscribe-title">
     <h2 id="wcs-subscribe-title">Subscribe</h2>
     <p>
-      Get new posts through RSS. Email updates can be added once this site is connected to a mailing-list provider.
+      Get new posts by email, or subscribe through RSS.
     </p>
+    <div class="wcs-mailoctopus-form">
+      <script async src="https://eocampaign1.com/form/5e4725aa-7ad1-11f1-aa85-53112f7c2f68.js" data-form="5e4725aa-7ad1-11f1-aa85-53112f7c2f68">
+      </script>
+    </div>
     <div class="wcs-subscribe-actions">
-      <a class="wcs-subscribe-button primary" href="feed.xml">RSS feed</a>
+      <a class="wcs-subscribe-button" href="feed.xml">RSS feed</a>
       <a class="wcs-subscribe-button" href="https://github.com/hax2/blog">GitHub</a>
     </div>
+    <p class="wcs-subscribe-secondary">
+      The email form is powered by MailOctopus.
+    </p>
   </section>
 
 </article>
