@@ -433,6 +433,10 @@
     border-radius: 6px;
   }
 
+  .wcs-threshold-label.align-left {
+    transform: translateX(calc(-100% - 6px));
+  }
+
   .wcs-minp-row {
     display: grid;
     grid-template-columns: 115px 1fr 70px 70px;
@@ -823,60 +827,52 @@
     }
 
     .wcs-cumulative-wrap {
-      height: auto;
+      height: 54px;
       margin: 0.85rem 0 0.7rem;
-      overflow: visible;
-      background: transparent;
-      border: 0;
+      overflow: hidden;
+      background: #ece7df;
+      border: 1px solid var(--wcs-border);
+      border-radius: 9px;
     }
 
     .wcs-cumulative-bar {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.45rem;
-      height: auto;
+      display: flex;
+      height: 100%;
+      width: 100%;
     }
 
     .wcs-cumulative-segment {
-      min-height: 2.35rem;
-      justify-content: flex-start;
-      border: 1px solid rgba(35, 79, 66, 0.28);
-      border-radius: 9px;
-      padding: 0 0.55rem;
-      font-size: 0.83rem;
+      min-width: 0;
+      height: 100%;
+      justify-content: center;
+      border: 0;
+      border-right: 1px solid rgba(255, 255, 255, 0.75);
+      border-radius: 0;
+      padding: 0;
+      font-size: 0.7rem;
       font-weight: 700;
-      width: auto !important;
-    }
-
-    .wcs-cumulative-segment:nth-child(n+7) {
-      display: none;
-    }
-
-    .wcs-cumulative-segment.cut {
-      border-color: var(--wcs-cut-border);
     }
 
     .wcs-cumulative-segment.cut .wcs-cumulative-label {
-      display: inline;
-    }
-
-    .wcs-cumulative-label {
-      padding: 0;
-    }
-
-    .wcs-threshold-line {
       display: none;
     }
 
-    .wcs-threshold-label {
-      position: static;
-      display: inline-block;
-      transform: none;
-      margin-bottom: 0.45rem;
-      font-size: 0.82rem;
+    .wcs-cumulative-label {
+      padding: 0 0.18rem;
     }
 
-    #wcs-topp-list .wcs-token-row:nth-child(n+7),
+    .wcs-threshold-line {
+      display: block;
+    }
+
+    .wcs-threshold-label {
+      position: absolute;
+      display: block;
+      top: 4px;
+      margin-bottom: 0;
+      font-size: 0.72rem;
+    }
+
     #wcs-minp-list .wcs-minp-row:nth-child(n+9) {
       display: none;
     }
@@ -1317,6 +1313,7 @@
 
     $("wcs-topp-threshold").style.left = pct(p, 2);
     $("wcs-topp-threshold-label").style.left = pct(p, 2);
+    $("wcs-topp-threshold-label").classList.toggle("align-left", p > 0.82);
     $("wcs-topp-threshold-label").textContent = "p = " + pct(p, 0);
 
     $("wcs-topp-bar").innerHTML = tokens.map((t, i) => {
