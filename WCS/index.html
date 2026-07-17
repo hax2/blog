@@ -658,6 +658,12 @@
     color: #ffffff;
   }
 
+  .wcs-post .wcs-update {
+    margin: 3rem 0 0;
+    border-top: 1px solid var(--wcs-border);
+    padding-top: 1.25rem;
+  }
+
   @media (max-width: 650px) {
     .wcs-post {
       padding: 1.35rem 1.08rem 3.25rem;
@@ -1277,6 +1283,10 @@
       <a class="wcs-subscribe-button" href="https://github.com/hax2/blog">GitHub</a>
     </div>
   </section>
+
+  <p class="wcs-update">
+    <strong>Update:</strong> Since writing this post, we’ve rerun the audit using a new corpus, FineWeb, and expanded it to 200 words with 50 contexts each. We also had the models write full-paragraph continuations after the human-written contexts, then correlated the lexical diversity of those continuations with the Word Coverage Score. The results show that a higher WCS predicts greater lexical diversity in LLM-generated text.
+  </p>
 
 </article>
 </main>
