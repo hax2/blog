@@ -1,7 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Are there words LLMs won’t say?</title>
-<meta name="description" content="A visual explanation of temperature, top-k, top-p, min-p, and Word Context Survival in LLM sampling.">
-<link rel="alternate" type="application/rss+xml" title="Samer's blog RSS feed" href="../feed.xml">
+<title>Are there words LLMs won’t say? — Samer Makes</title>
+<meta name="description" content="A visual explanation of temperature, top-k, top-p, min-p, and the Word Coverage Score in LLM sampling.">
+<meta name="author" content="Samer Awad">
+<link rel="canonical" href="https://samermakes.com/blog/WCS/">
+<link rel="alternate" type="application/rss+xml" title="Samer Makes RSS feed" href="../feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Samer Makes">
+<meta property="og:title" content="Are there words LLMs won’t say?">
+<meta property="og:description" content="How temperature and sampling filters can make contextually appropriate words unreachable.">
+<meta property="og:url" content="https://samermakes.com/blog/WCS/">
+<meta property="og:image" content="https://samermakes.com/blog/assets/wcs-process-overview.png">
+<meta property="article:published_time" content="2026-07-08">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
@@ -20,6 +34,23 @@
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
 
+  .wcs-skip-link {
+    position: fixed;
+    z-index: 100;
+    top: 0.75rem;
+    left: 0.75rem;
+    transform: translateY(-200%);
+    border-radius: 7px;
+    padding: 0.65rem 0.85rem;
+    background: #121417;
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .wcs-skip-link:focus {
+    transform: translateY(0);
+  }
+
   .wcs-post {
     --wcs-page-bg: transparent;
     --wcs-surface: #ffffff;
@@ -31,12 +62,12 @@
     --wcs-accent: #285f82;
     --wcs-kept-bg: #eef7f3;
     --wcs-kept-border: #96b9aa;
-    --wcs-kept-fill: #4b8a72;
+    --wcs-kept-fill: #3f765f;
     --wcs-kept-text: #234f42;
     --wcs-cut-bg: #f8efec;
     --wcs-cut-border: #d5aaa0;
     --wcs-cut-fill: #d8b0a7;
-    --wcs-cut-text: #733b32;
+    --wcs-cut-text: #6d342d;
     --wcs-threshold: #ad7425;
     box-sizing: border-box;
     width: min(100%, 840px);
@@ -63,6 +94,93 @@
 
   .wcs-post a:hover {
     text-decoration-color: currentColor;
+  }
+
+  .wcs-post a:focus-visible,
+  .wcs-post button:focus-visible,
+  .wcs-post input:focus-visible,
+  .wcs-post select:focus-visible {
+    outline: 3px solid rgba(40, 95, 130, 0.35);
+    outline-offset: 3px;
+  }
+
+  .wcs-breadcrumb {
+    margin-bottom: 1.4rem;
+    color: var(--wcs-muted);
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .wcs-breadcrumb a {
+    color: inherit;
+  }
+
+  .wcs-post-header {
+    margin-bottom: 2rem;
+  }
+
+  .wcs-post .wcs-post-header h1 {
+    margin-bottom: 0.8rem;
+  }
+
+  .wcs-post .wcs-dek {
+    max-width: 42rem;
+    margin: 0;
+    color: #454b53;
+    font-size: 1.08em;
+    line-height: 1.55;
+  }
+
+  .wcs-byline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.55rem;
+    align-items: center;
+    margin-top: 0.9rem;
+    color: var(--wcs-muted);
+    font-size: 0.86rem;
+    line-height: 1.4;
+  }
+
+  .wcs-takeaways {
+    margin: 1.8rem 0 2rem;
+    border: 1px solid var(--wcs-border);
+    border-radius: 10px;
+    padding: 1.1rem 1.2rem;
+    background: rgba(255, 255, 255, 0.66);
+  }
+
+  .wcs-post .wcs-takeaways h2 {
+    margin: 0 0 0.55rem;
+    font-size: 1.15rem;
+  }
+
+  .wcs-post .wcs-takeaways ul {
+    margin: 0;
+  }
+
+  .wcs-on-this-page {
+    margin: 0 0 2.3rem;
+    border-bottom: 1px solid var(--wcs-rule);
+    padding-bottom: 1.3rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .wcs-on-this-page strong {
+    display: block;
+    margin-bottom: 0.45rem;
+    color: #2c3137;
+  }
+
+  .wcs-on-this-page ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
   .wcs-post h1 {
@@ -594,6 +712,24 @@
       line-height: 1.15;
     }
 
+    .wcs-post-header h1 {
+      margin-bottom: 0.75rem;
+    }
+
+    .wcs-dek {
+      font-size: 1.02em;
+    }
+
+    .wcs-takeaways {
+      padding: 1rem;
+    }
+
+    .wcs-on-this-page ul {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.35rem 0.8rem;
+    }
+
     .wcs-post h2 {
       margin-top: 2.65rem;
       margin-bottom: 0.7rem;
@@ -864,6 +1000,10 @@
   }
 
   @media (max-width: 340px) {
+    .wcs-on-this-page ul {
+      grid-template-columns: 1fr;
+    }
+
     #wcs-softmax-widget .wcs-live-equations {
       grid-template-columns: 1fr;
     }
@@ -873,12 +1013,47 @@
     }
   }
 </style>
-
+</head>
+<body>
+<a class="wcs-skip-link" href="#main-content">Skip to article</a>
+<main id="main-content">
 <article class="wcs-post">
-  <h1>Are there words LLMs won’t say?</h1>
+  <nav class="wcs-breadcrumb" aria-label="Breadcrumb">
+    <a href="https://samermakes.com/">Samer Makes</a> / <a href="../">Blog</a> / WCS
+  </nav>
+
+  <header class="wcs-post-header">
+    <h1>Are there words LLMs won’t say?</h1>
+    <p class="wcs-dek">How temperature and common sampling filters can make a contextually appropriate word impossible for a language model to choose.</p>
+    <div class="wcs-byline">
+      <span>By Samer Awad</span>
+      <span aria-hidden="true">·</span>
+      <time datetime="2026-07-08">July 8, 2026</time>
+    </div>
+  </header>
+
+  <section class="wcs-takeaways" aria-labelledby="wcs-takeaways-title">
+    <h2 id="wcs-takeaways-title">In short</h2>
+    <ul>
+      <li>Temperature reshapes the probability distribution before filtering.</li>
+      <li>Top-k, top-p, and min-p can remove plausible tokens from the candidate set.</li>
+      <li>The Word Coverage Score measures how often target words remain reachable.</li>
+    </ul>
+  </section>
+
+  <nav class="wcs-on-this-page" aria-label="On this page">
+    <strong>On this page</strong>
+    <ul>
+      <li><a href="#temperature">Temperature</a></li>
+      <li><a href="#top-k">Top-k</a></li>
+      <li><a href="#top-p">Top-p</a></li>
+      <li><a href="#min-p">Min-p</a></li>
+      <li><a href="#word-coverage-score">Word Coverage Score</a></li>
+    </ul>
+  </nav>
 
   <p>
-    LLMs have every English word in their vocabulary, but some of those words may never appear in their output. LLM-generated text is measurably less lexically diverse than human writing, and the reason isn't just the model. It's also the sampler. The researchers at <a href="https://ging.github.io/">GING</a> set out to investigate one possible reason why an LLM might never produce a specific word, even if it is appropriate for a given context.
+    LLMs have every English word in their vocabulary, but some of those words may never appear in their output. LLM-generated text is measurably less lexically diverse than human writing. The researchers at <a href="https://ging.github.io/">GING</a> set out to investigate one possible reason why an LLM might never produce a specific word, even if it is appropriate for a given context.
   </p>
 
   <p>
@@ -909,6 +1084,8 @@
   <p>
     Even though the ratios are identical, the larger absolute gap makes the higher value much more dominant after softmax is applied.
   </p>
+
+  <h2 id="temperature">Temperature</h2>
 
   <p>
     Temperature is a variable adjusted during inference, usually treated as a creativity parameter. Increasing the temperature makes the output more varied, while decreasing it makes the model's outputs more deterministic. At <strong>T = 0</strong>, the model enters greedy sampling and always chooses the token with the highest logit.
@@ -957,7 +1134,7 @@
       </div>
     </div>
 
-    <div class="wcs-math" id="wcs-softmax-math"></div>
+    <div class="wcs-math" id="wcs-softmax-math" aria-live="polite"></div>
 
     <div class="wcs-token-row">
       <div class="wcs-token-name">interesting</div>
@@ -981,7 +1158,7 @@
     The three common sampling filters are <strong>top-k</strong>, <strong>top-p</strong>, and <strong>min-p</strong>.
   </p>
 
-  <h2>Top-k</h2>
+  <h2 id="top-k">Top-k</h2>
 
   <p>
     For <strong>top-k</strong>, we choose a value of k, for example 5. The model ranks tokens by probability, keeps the first 5, and discards everything below rank 5. The final token is sampled from the surviving group.
@@ -998,11 +1175,11 @@
       <input id="wcs-topk" type="range" min="1" max="15" step="1" value="5">
     </div>
 
-    <div class="wcs-note" id="wcs-topk-summary"></div>
+    <div class="wcs-note" id="wcs-topk-summary" role="status" aria-live="polite"></div>
     <div class="wcs-rank-strip" id="wcs-topk-strip"></div>
   </div>
 
-  <h2>Top-p</h2>
+  <h2 id="top-p">Top-p</h2>
 
   <p>
     For <strong>top-p</strong>, also called <strong>nucleus sampling</strong>, we choose a probability threshold, for example 0.9. The model starts with the most likely token, then adds the next most likely token, then the next, until the kept tokens together account for at least 90% of the probability mass. Tokens beyond that cutoff are removed.
@@ -1029,11 +1206,11 @@
       <div class="wcs-threshold-label" id="wcs-topp-threshold-label">p = 90%</div>
     </div>
 
-    <div class="wcs-note" id="wcs-topp-summary"></div>
+    <div class="wcs-note" id="wcs-topp-summary" role="status" aria-live="polite"></div>
     <div id="wcs-topp-list"></div>
   </div>
 
-  <h2>Min-p</h2>
+  <h2 id="min-p">Min-p</h2>
 
   <p>
     For <strong>min-p</strong>, the cutoff is based on the probability of the most likely token. If min-p is 0.05 and the top token has probability 40%, then the cutoff is:
@@ -1063,7 +1240,7 @@
       </div>
     </div>
 
-    <div class="wcs-note" id="wcs-minp-summary"></div>
+    <div class="wcs-note" id="wcs-minp-summary" role="status" aria-live="polite"></div>
     <div id="wcs-minp-list"></div>
   </div>
 
@@ -1075,7 +1252,7 @@
     A token can have a real probability in the model’s distribution and still become impossible to output after filtering. Once the sampler removes it, the model cannot choose it in that step.
   </p>
 
-  <h2>Word Context Survival</h2>
+  <h2 id="word-coverage-score">Word Coverage Score</h2>
 
   <p>
     We recently published <a href="https://arxiv.org/abs/2605.27268">a paper</a> investigating whether common sampler settings filter out relatively common English words, rendering them impossible for LLMs to generate. We began by defining a frequency range of 10k to 40k on a word frequency list. These words are common enough that a human author uses them naturally. Examples closer to the 10k rank include <em>poison</em>, <em>ethnicity</em>, <em>tourists</em>, <em>fatigue</em>, <em>coil</em>, and <em>consuming</em>. On the rarer end, approaching the 40k rank, examples include <em>instinctively</em>, <em>stiletto</em>, <em>eventful</em>, <em>lobsters</em>, <em>moustache</em>, <em>coals</em>, and <em>succulent</em>. We randomly selected 100 words from this range; the full list is available <a href="https://wordsgpt.github.io/WCS/word_list.html">here</a>.
@@ -1086,15 +1263,27 @@
   </p>
 
   <figure class="wcs-figure wcs-pipeline-figure">
-    <img src="../assets/wcs-process-overview.png" alt="Overview of the Word Context Survival pipeline: lexical selection, contextual pairing, sampler audit, and metric calculation.">
-    <figcaption>Overview of the Word Context Survival pipeline, from selecting mid-frequency target words to auditing whether sampler filters preserve them in context.</figcaption>
+    <picture>
+      <source
+        type="image/webp"
+        srcset="../assets/wcs-process-overview-840.webp 840w, ../assets/wcs-process-overview-1680.webp 1680w"
+        sizes="(max-width: 650px) calc(100vw - 1.25rem), 840px">
+      <img
+        src="../assets/wcs-process-overview.png"
+        width="2248"
+        height="1699"
+        loading="lazy"
+        decoding="async"
+        alt="Overview of the Word Coverage Score pipeline: lexical selection, contextual pairing, sampler audit, and metric calculation.">
+    </picture>
+    <figcaption>Overview of the Word Coverage Score pipeline, from selecting mid-frequency target words to auditing whether sampler filters preserve them in context.</figcaption>
   </figure>
 
   <p>
-    We then tested the logits assigned to each target word in its context across multiple open-weights LLMs. Using this data, we calculated whether the word would survive the initial selection phase under various sampler settings to remain a viable output option. We defined this using a binary reachability formula <strong>R<sub>&theta;</sub>(w, c) &isin; {0, 1}</strong>, which we aggregated into a Word Context Survival score across the corpus:
+    We then tested the logits assigned to each target word in its context across multiple open-weights LLMs. Using this data, we calculated whether the word would survive the initial selection phase under various sampler settings to remain a viable output option. We defined this using a binary reachability formula <strong>R<sub>&theta;</sub>(w, c) &isin; {0, 1}</strong>, which we aggregated into a Word Coverage Score across the corpus:
   </p>
 
-  <div class="wcs-equation" aria-label="Word Context Survival theta equals one over the size of D times the sum of reach of w c">
+  <div class="wcs-equation" aria-label="Word Coverage Score theta equals one over the size of D times the sum of reach of w c">
     <span>WCS<sub>&theta;</sub> =</span>
     <span class="wcs-frac">
       <span class="wcs-frac-num">1</span>
@@ -1120,7 +1309,19 @@
   </p>
 
   <figure class="wcs-figure">
-    <img src="../assets/llm-academic-word-trends.png" alt="Four line charts showing shifts in selected word frequencies in academic abstracts between 2018 and 2025, with markers for December 2022 and March 2024.">
+    <picture>
+      <source
+        type="image/webp"
+        srcset="../assets/llm-academic-word-trends-840.webp 840w, ../assets/llm-academic-word-trends-1680.webp 1680w"
+        sizes="(max-width: 650px) calc(100vw - 1.25rem), 840px">
+      <img
+        src="../assets/llm-academic-word-trends.png"
+        width="4743"
+        height="3232"
+        loading="lazy"
+        decoding="async"
+        alt="Four line charts showing shifts in selected word frequencies in academic abstracts between 2018 and 2025, with markers for December 2022 and March 2024.">
+    </picture>
     <figcaption>Word-frequency shifts in academic abstracts around major LLM adoption periods, illustrating that model-associated language trends can become visible in human-facing text. Source: <a href="https://arxiv.org/html/2502.09606v2">Geng &amp; Trotta, 2025</a>.</figcaption>
   </figure>
 
@@ -1148,6 +1349,7 @@
   </section>
 
 </article>
+</main>
 
 <script>
 (function () {
@@ -1243,10 +1445,8 @@
     const k = parseInt($("wcs-topk").value, 10);
     $("wcs-topk-val").textContent = k;
 
-    const keptMass = tokens.slice(0, k).reduce((sum, t) => sum + t.p, 0);
-
     $("wcs-topk-summary").textContent =
-      "Ranks 1–" + k + " survive. Everything below rank " + k + " is removed. Surviving mass before renormalization: " + pct(keptMass) + ".";
+      "Ranks 1–" + k + " survive. Everything below rank " + k + " is removed.";
 
     $("wcs-topk-strip").innerHTML = tokens.map((t, i) => {
       const kept = i < k;
@@ -1388,3 +1588,5 @@
   updateMinP();
 })();
 </script>
+</body>
+</html>

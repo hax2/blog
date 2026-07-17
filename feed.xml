@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Samer's blog</title>
-    <link>https://hax2.github.io/blog/</link>
-    <atom:link href="https://hax2.github.io/blog/feed.xml" rel="self" type="application/rss+xml"/>
+    <title>Samer Makes</title>
+    <link>https://samermakes.com/blog/</link>
+    <atom:link href="https://samermakes.com/blog/feed.xml" rel="self" type="application/rss+xml"/>
     <description>Posts about AI, language, language learning, and research.</description>
     <language>en-us</language>
-    <lastBuildDate>Wed, 08 Jul 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 17 Jul 2026 00:00:00 +0000</lastBuildDate>
     <item>
       <title>Are there words LLMs won’t say?</title>
-      <link>https://hax2.github.io/blog/</link>
-      <guid isPermaLink="true">https://hax2.github.io/blog/</guid>
+      <link>https://samermakes.com/blog/WCS/</link>
+      <guid isPermaLink="true">https://samermakes.com/blog/WCS/</guid>
       <pubDate>Wed, 08 Jul 2026 00:00:00 +0000</pubDate>
-      <description>A visual explanation of temperature, top-k, top-p, min-p, and Word Context Survival in LLM sampling.</description>
+      <description>A visual explanation of temperature, top-k, top-p, min-p, and the Word Coverage Score in LLM sampling.</description>
     </item>
   </channel>
 </rss>

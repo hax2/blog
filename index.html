@@ -1,1390 +1,288 @@
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Are there words LLMs won’t say?</title>
-<meta name="description" content="A visual explanation of temperature, top-k, top-p, min-p, and Word Context Survival in LLM sampling.">
-<link rel="alternate" type="application/rss+xml" title="Samer's blog RSS feed" href="https://hax2.github.io/blog/feed.xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
-
-<style>
-  html {
-    background: #f7f6f2;
-  }
-
-  body {
-    margin: 0;
-    min-height: 100vh;
-    background:
-      linear-gradient(180deg, rgba(40, 95, 130, 0.08), rgba(40, 95, 130, 0) 14rem),
-      #f7f6f2;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  }
-
-  .wcs-post {
-    --wcs-page-bg: transparent;
-    --wcs-surface: #ffffff;
-    --wcs-soft-surface: #f6f3ee;
-    --wcs-text: #1f2328;
-    --wcs-muted: #666b73;
-    --wcs-border: #ded8cf;
-    --wcs-rule: #ebe5dc;
-    --wcs-accent: #285f82;
-    --wcs-kept-bg: #eef7f3;
-    --wcs-kept-border: #96b9aa;
-    --wcs-kept-fill: #4b8a72;
-    --wcs-kept-text: #234f42;
-    --wcs-cut-bg: #f8efec;
-    --wcs-cut-border: #d5aaa0;
-    --wcs-cut-fill: #d8b0a7;
-    --wcs-cut-text: #733b32;
-    --wcs-threshold: #ad7425;
-    box-sizing: border-box;
-    width: min(100%, 840px);
-    margin: 0 auto;
-    padding: 3rem 1.35rem 4.5rem;
-    background: var(--wcs-page-bg);
-    font-size: 1.2rem;
-    line-height: 1.75;
-    color: var(--wcs-text);
-    text-rendering: optimizeLegibility;
-  }
-
-  .wcs-post *,
-  .wcs-post *::before,
-  .wcs-post *::after {
-    box-sizing: inherit;
-  }
-
-  .wcs-post a {
-    color: var(--wcs-accent);
-    text-decoration-color: rgba(40, 95, 130, 0.35);
-    text-underline-offset: 0.15em;
-  }
-
-  .wcs-post a:hover {
-    text-decoration-color: currentColor;
-  }
-
-  .wcs-post h1 {
-    max-width: 24ch;
-    font-size: clamp(2rem, 5.5vw, 3rem);
-    line-height: 1.12;
-    letter-spacing: -0.02em;
-    margin: 0 0 1.75rem;
-    color: #121417;
-    font-weight: 800;
-  }
-
-  .wcs-post h2 {
-    font-size: clamp(1.4rem, 2.5vw, 1.75rem);
-    line-height: 1.25;
-    letter-spacing: -0.015em;
-    margin: 3rem 0 0.9rem;
-    color: #16191d;
-    font-weight: 700;
-  }
-
-  .wcs-post h3 {
-    font-size: 1.2rem;
-    line-height: 1.3;
-    letter-spacing: -0.01em;
-    margin: 0 0 0.35rem;
-    color: #181b20;
-    font-weight: 600;
-  }
-
-  .wcs-post p {
-    margin: 1.12rem 0;
-  }
-
-  .wcs-post ul {
-    margin: 1.15rem 0 1.25rem;
-    padding-left: 1.35rem;
-  }
-
-  .wcs-post li {
-    margin: 0.55rem 0;
-    padding-left: 0.15rem;
-  }
-
-  .wcs-post em {
-    font-style: italic;
-  }
-
-  .wcs-post pre {
-    background: var(--wcs-soft-surface);
-    border: 1px solid var(--wcs-border);
-    border-radius: 8px;
-    padding: 0.85rem 1rem;
-    overflow-x: auto;
-  }
-
-  .wcs-post code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  }
-
-  .wcs-figure {
-    margin: 1.7rem 0 2rem;
-  }
-
-  .wcs-figure img {
-    display: block;
-    width: 100%;
-    height: auto;
-    border: 1px solid var(--wcs-border);
-    border-radius: 8px;
-    background: var(--wcs-surface);
-  }
-
-  .wcs-figure figcaption {
-    margin-top: 0.55rem;
-    color: var(--wcs-muted);
-    font-size: 0.88rem;
-    line-height: 1.45;
-  }
-
-  .wcs-equation {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.45rem;
-    margin: 1.25rem 0;
-    padding: 1.05rem;
-    background: var(--wcs-surface);
-    border: 1px solid var(--wcs-border);
-    border-radius: 8px;
-    color: #15181c;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 1.2rem;
-    line-height: 1.25;
-    overflow-x: auto;
-  }
-
-  .wcs-frac {
-    display: inline-grid;
-    grid-template-rows: auto auto;
-    align-items: center;
-    min-width: max-content;
-    text-align: center;
-    vertical-align: middle;
-  }
-
-  .wcs-frac-num {
-    border-bottom: 1.5px solid currentColor;
-    padding: 0 0.45rem 0.18rem;
-  }
-
-  .wcs-frac-den {
-    padding: 0.18rem 0.45rem 0;
-  }
-
-  .wcs-sigma {
-    font-size: 1.45rem;
-    vertical-align: -0.08em;
-  }
-
-  .wcs-brace {
-    font-size: 1.35rem;
-  }
-
-  .wcs-widget {
-    margin: 1.8rem 0 2.2rem;
-    padding: 1.2rem;
-    border: 1px solid var(--wcs-border);
-    border-radius: 10px;
-    background: var(--wcs-surface);
-    box-shadow: 0 1px 0 rgba(31, 35, 40, 0.04);
-  }
-
-  .wcs-widget p {
-    margin: 0.35rem 0 1rem;
-    color: var(--wcs-muted);
-    font-size: 0.95rem;
-    line-height: 1.55;
-  }
-
-  .wcs-controls {
-    display: grid;
-    gap: 0.75rem;
-    margin: 1rem 0;
-  }
-
-  .wcs-control {
-    display: grid;
-    gap: 0.25rem;
-  }
-
-  .wcs-control label {
-    font-size: 0.94rem;
-    font-weight: 700;
-    color: #2c3137;
-  }
-
-  .wcs-control input[type="range"],
-  .wcs-control select {
-    width: 100%;
-    accent-color: var(--wcs-accent);
-  }
-
-  .wcs-control input[type="range"] {
-    min-height: 2rem;
-  }
-
-  .wcs-math {
-    background: var(--wcs-soft-surface);
-    border: 1px solid var(--wcs-border);
-    border-radius: 8px;
-    padding: 0.9rem 1rem;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 1rem;
-    margin: 1rem 0;
-  }
-
-  .wcs-live-equations {
-    display: grid;
-    gap: 0.55rem;
-  }
-
-  .wcs-live-equation {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  .wcs-live-label {
-    min-width: 8.5rem;
-    color: var(--wcs-muted);
-    font-size: 0.86rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-  }
-
-  .wcs-live-value,
-  .wcs-live-values {
-    color: #15181c;
-  }
-
-  .wcs-live-values {
-    display: flex;
-    gap: 0.65rem;
-    flex-wrap: wrap;
-  }
-
-  .wcs-token-row {
-    display: grid;
-    grid-template-columns: 120px 1fr 80px;
-    gap: 0.65rem;
-    align-items: center;
-    margin: 0.55rem 0;
-    font-size: 0.94rem;
-  }
-
-  .wcs-token-name {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  }
-
-  .wcs-topp-row {
-    grid-template-columns: 150px 1fr 155px;
-  }
-
-  .wcs-topp-row .wcs-token-name,
-  .wcs-topp-meta {
-    white-space: nowrap;
-  }
-
-  .wcs-bar-shell {
-    height: 18px;
-    border-radius: 999px;
-    background: #ece7df;
-    overflow: hidden;
-  }
-
-  .wcs-bar {
-    height: 100%;
-    width: 0%;
-    border-radius: 999px;
-    background: var(--wcs-kept-fill);
-  }
-
-  .wcs-note {
-    border-left: 4px solid var(--wcs-accent);
-    background: #f2f5f6;
-    padding: 0.75rem 1rem;
-    margin: 1rem 0;
-    color: #2f3940;
-    font-size: 0.94rem;
-  }
-
-  .wcs-rank-strip {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 0.45rem;
-    margin-top: 1rem;
-  }
-
-  .wcs-rank-card {
-    border: 1px solid var(--wcs-kept-border);
-    border-radius: 12px;
-    padding: 0.55rem;
-    background: var(--wcs-kept-bg);
-    min-height: 76px;
-  }
-
-  .wcs-rank-card.cut {
-    background: var(--wcs-cut-bg);
-    border-color: var(--wcs-cut-border);
-    color: var(--wcs-cut-text);
-    text-decoration: line-through;
-  }
-
-  .wcs-rank-number {
-    display: inline-block;
-    font-size: 0.78rem;
-    border: 1px solid var(--wcs-border);
-    border-radius: 999px;
-    padding: 0.05rem 0.4rem;
-    margin-bottom: 0.3rem;
-  }
-
-  .wcs-rank-token {
-    display: block;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.9rem;
-  }
-
-  .wcs-rank-prob {
-    display: block;
-    color: var(--wcs-muted);
-    font-size: 0.82rem;
-    margin-top: 0.15rem;
-  }
-
-  .wcs-cumulative-wrap {
-    position: relative;
-    height: 48px;
-    border: 1px solid var(--wcs-border);
-    border-radius: 10px;
-    overflow: hidden;
-    background: #ece7df;
-    margin: 1rem 0 0.6rem;
-  }
-
-  .wcs-cumulative-bar {
-    display: flex;
-    height: 100%;
-    width: 100%;
-  }
-
-  .wcs-cumulative-segment {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-right: 1px solid rgba(255, 255, 255, 0.75);
-    font-size: 0.78rem;
-    overflow: hidden;
-    white-space: nowrap;
-    background: var(--wcs-kept-fill);
-    color: white;
-  }
-
-  .wcs-cumulative-label {
-    overflow: hidden;
-    padding: 0 0.25rem;
-    text-overflow: ellipsis;
-  }
-
-  .wcs-cumulative-segment.cut {
-    background: var(--wcs-cut-fill);
-    color: var(--wcs-cut-text);
-  }
-
-  .wcs-cumulative-segment.cut .wcs-cumulative-label {
-    display: none;
-  }
-
-  .wcs-threshold-line {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: var(--wcs-threshold);
-  }
-
-  .wcs-threshold-label {
-    position: absolute;
-    top: 3px;
-    transform: translateX(6px);
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: #7a4a11;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 0.05rem 0.25rem;
-    border-radius: 6px;
-  }
-
-  .wcs-threshold-label.align-left {
-    transform: translateX(calc(-100% - 6px));
-  }
-
-  .wcs-minp-row {
-    display: grid;
-    grid-template-columns: 115px 1fr 70px 70px;
-    gap: 0.55rem;
-    align-items: center;
-    margin: 0.55rem 0;
-    font-size: 0.92rem;
-  }
-
-  .wcs-minp-bar-area {
-    position: relative;
-    height: 18px;
-    background: #ece7df;
-    border-radius: 999px;
-  }
-
-  .wcs-minp-cutoff {
-    position: absolute;
-    top: -5px;
-    bottom: -5px;
-    width: 3px;
-    background: var(--wcs-threshold);
-  }
-
-  .wcs-minp-bar {
-    height: 100%;
-    background: var(--wcs-kept-fill);
-    border-radius: 999px;
-  }
-
-  .wcs-minp-row.cut {
-    color: var(--wcs-cut-text);
-    text-decoration: line-through;
-  }
-
-  .wcs-minp-row.cut .wcs-minp-bar {
-    background: var(--wcs-cut-fill);
-  }
-
-  .wcs-token-row.cut {
-    color: var(--wcs-cut-text);
-    text-decoration: line-through;
-  }
-
-  .wcs-token-row.cut .wcs-bar {
-    background: var(--wcs-cut-fill);
-  }
-
-  .wcs-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-    margin-top: 1rem;
-  }
-
-  .wcs-table th,
-  .wcs-table td {
-    border-bottom: 1px solid var(--wcs-border);
-    padding: 0.5rem;
-    text-align: left;
-    vertical-align: top;
-  }
-
-  .wcs-table th {
-    background: var(--wcs-soft-surface);
-  }
-
-  .wcs-pill {
-    display: inline-block;
-    border: 1px solid var(--wcs-kept-border);
-    border-radius: 999px;
-    padding: 0.08rem 0.45rem;
-    font-size: 0.78rem;
-    white-space: nowrap;
-    background: var(--wcs-kept-bg);
-    color: var(--wcs-kept-text);
-  }
-
-  .wcs-pill.cut {
-    border-color: var(--wcs-cut-border);
-    background: var(--wcs-cut-bg);
-    color: var(--wcs-cut-text);
-  }
-
-  .wcs-sources {
-    font-size: 0.9rem;
-    color: var(--wcs-muted);
-    margin-top: 2.5rem;
-    border-top: 1px solid var(--wcs-border);
-    padding-top: 1rem;
-  }
-
-  .wcs-sources a {
-    color: inherit;
-  }
-
-  .wcs-subscribe {
-    margin-top: 2.75rem;
-    padding-top: 1.2rem;
-    border-top: 1px solid var(--wcs-border);
-  }
-
-  .wcs-subscribe h2 {
-    margin-top: 0;
-  }
-
-  .wcs-subscribe p {
-    max-width: 34rem;
-    color: var(--wcs-muted);
-    font-size: 0.98rem;
-    line-height: 1.55;
-  }
-
-  .wcs-subscribe-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem;
-    margin-top: 1rem;
-  }
-
-  .wcs-mailoctopus-form {
-    max-width: 34rem;
-    margin-top: 1rem;
-  }
-
-  .wcs-mailoctopus-form:empty {
-    min-height: 3.2rem;
-  }
-
-  .wcs-subscribe-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 2.55rem;
-    border: 1px solid var(--wcs-border);
-    border-radius: 8px;
-    padding: 0.55rem 0.8rem;
-    background: var(--wcs-surface);
-    color: var(--wcs-text);
-    font-size: 0.95rem;
-    font-weight: 700;
-    line-height: 1.2;
-    text-decoration: none;
-  }
-
-  .wcs-subscribe-button.primary {
-    border-color: var(--wcs-accent);
-    background: var(--wcs-accent);
-    color: #ffffff;
-  }
-
-  @media (max-width: 650px) {
-    .wcs-post {
-      padding: 1.35rem 1.08rem 3.25rem;
-      font-size: 1.125rem;
-      line-height: 1.7;
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blog — Samer Makes</title>
+  <meta name="description" content="Writing by Samer Awad about AI, language, language learning, and research.">
+  <meta name="author" content="Samer Awad">
+  <link rel="canonical" href="https://samermakes.com/blog/">
+  <link rel="alternate" type="application/rss+xml" title="Samer Makes RSS feed" href="feed.xml">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Samer Makes">
+  <meta property="og:title" content="Blog — Samer Makes">
+  <meta property="og:description" content="Writing about AI, language, language learning, and research.">
+  <meta property="og:url" content="https://samermakes.com/blog/">
+  <meta name="twitter:card" content="summary">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+  <style>
+    :root {
+      color-scheme: light;
+      --page-bg: #f7f6f2;
+      --surface: #ffffff;
+      --text: #1f2328;
+      --muted: #666b73;
+      --border: #ded8cf;
+      --accent: #285f82;
     }
 
-    .wcs-post h1 {
-      max-width: 100%;
-      margin-bottom: 1.25rem;
-      font-size: clamp(1.8rem, 8vw, 2.4rem);
-      line-height: 1.15;
+    * {
+      box-sizing: border-box;
     }
 
-    .wcs-post h2 {
-      margin-top: 2.65rem;
-      margin-bottom: 0.7rem;
-      font-size: clamp(1.3rem, 6vw, 1.5rem);
-      line-height: 1.25;
+    html {
+      background: var(--page-bg);
     }
 
-    .wcs-post h3 {
-      font-size: 1.1rem;
-      line-height: 1.3;
-    }
-
-    .wcs-post p {
-      margin: 1.18rem 0;
-    }
-
-    .wcs-post ul {
-      padding-left: 1.15rem;
-    }
-
-    .wcs-post pre {
-      margin-inline: -0.15rem;
-      padding: 0.9rem;
-    }
-
-    .wcs-widget {
-      margin: 1.55rem -0.25rem 2rem;
-      padding: 1rem;
-      border-radius: 9px;
-    }
-
-    .wcs-widget p {
-      font-size: 0.98rem;
-      line-height: 1.5;
-    }
-
-    .wcs-control {
-      gap: 0.35rem;
-    }
-
-    .wcs-control label {
-      font-size: 0.98rem;
-    }
-
-    .wcs-note {
-      padding: 0.7rem 0.85rem;
-      font-size: 0.88rem;
-      line-height: 1.42;
-    }
-
-    .wcs-subscribe {
-      margin-top: 2.35rem;
-    }
-
-    .wcs-subscribe-actions {
-      display: grid;
-      grid-template-columns: 1fr;
-    }
-
-    .wcs-mailoctopus-form {
-      max-width: none;
-    }
-
-    #wcs-softmax-widget {
-      display: grid;
-      gap: 0.7rem;
-    }
-
-    #wcs-softmax-widget h3,
-    #wcs-softmax-widget p {
-      margin-bottom: 0;
-    }
-
-    #wcs-softmax-widget .wcs-controls {
-      margin: 0.15rem 0 0.25rem;
-    }
-
-    #wcs-softmax-widget .wcs-token-row {
+    body {
+      min-height: 100vh;
       margin: 0;
+      background:
+        linear-gradient(180deg, rgba(40, 95, 130, 0.09), rgba(40, 95, 130, 0) 17rem),
+        var(--page-bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      text-rendering: optimizeLegibility;
     }
 
-    #wcs-softmax-widget .wcs-math {
-      order: 5;
-      margin: 0.2rem 0 0;
-      padding: 0.65rem;
-      font-size: 0.82rem;
+    a {
+      color: var(--accent);
+      text-decoration-color: rgba(40, 95, 130, 0.35);
+      text-underline-offset: 0.15em;
     }
 
-    #wcs-softmax-widget .wcs-live-equations {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 0.45rem;
+    a:hover {
+      text-decoration-color: currentColor;
     }
 
-    #wcs-softmax-widget .wcs-live-equation {
-      display: grid;
-      align-content: start;
-      gap: 0.25rem;
-      min-height: 5.35rem;
-      padding: 0.55rem 0.45rem;
-      border: 1px solid var(--wcs-border);
+    a:focus-visible {
+      outline: 3px solid rgba(40, 95, 130, 0.35);
+      outline-offset: 4px;
+      border-radius: 3px;
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 10;
+      top: 0.75rem;
+      left: 0.75rem;
+      transform: translateY(-200%);
       border-radius: 7px;
-      background: rgba(255, 255, 255, 0.62);
-    }
-
-    .wcs-equation {
-      justify-content: flex-start;
-      margin-inline: -0.15rem;
-      padding: 0.85rem;
-      font-size: 1.08rem;
-    }
-
-    .wcs-live-label {
-      min-width: 100%;
-    }
-
-    #wcs-softmax-widget .wcs-live-label {
-      min-width: 0;
-      font-size: 0.66rem;
-      line-height: 1.1;
-    }
-
-    #wcs-softmax-widget .wcs-live-value,
-    #wcs-softmax-widget .wcs-live-values {
-      display: grid;
-      gap: 0.15rem;
-      font-size: 0.78rem;
-      line-height: 1.15;
-    }
-
-    .wcs-figure {
-      margin: 1.45rem -0.45rem 1.9rem;
-    }
-
-    .wcs-figure img {
-      border-radius: 9px;
-    }
-
-    .wcs-figure figcaption {
-      padding-inline: 0.45rem;
-      font-size: 0.92rem;
-    }
-
-    .wcs-pipeline-figure {
-      display: none;
-    }
-
-    .wcs-rank-strip {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.5rem;
-    }
-
-    .wcs-rank-card {
-      min-height: 58px;
-      padding: 0.45rem 0.5rem;
-      border-radius: 9px;
-    }
-
-    .wcs-rank-card:nth-child(n+7) {
-      display: none;
-    }
-
-    .wcs-rank-number {
-      margin-bottom: 0.18rem;
-      font-size: 0.68rem;
-    }
-
-    .wcs-rank-token {
-      font-size: 0.88rem;
-    }
-
-    .wcs-rank-prob {
-      font-size: 0.76rem;
-    }
-
-    .wcs-token-row {
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 0.28rem 0.75rem;
-      align-items: end;
-      font-size: 0.98rem;
-    }
-
-    .wcs-token-row .wcs-bar-shell {
-      grid-column: 1 / -1;
-      grid-row: 2;
-    }
-
-    .wcs-minp-row {
-      grid-template-columns: minmax(0, 1fr) auto auto;
-      gap: 0.28rem 0.6rem;
-      align-items: end;
-      font-size: 0.98rem;
-    }
-
-    .wcs-minp-row .wcs-minp-bar-area {
-      grid-column: 1 / -1;
-      grid-row: 2;
-    }
-
-    .wcs-topp-row .wcs-token-name,
-    .wcs-topp-meta {
-      white-space: normal;
-    }
-
-    .wcs-cumulative-wrap {
-      height: 54px;
-      margin: 0.85rem 0 0.7rem;
-      overflow: hidden;
-      background: #ece7df;
-      border: 1px solid var(--wcs-border);
-      border-radius: 9px;
-    }
-
-    .wcs-cumulative-bar {
-      display: flex;
-      height: 100%;
-      width: 100%;
-    }
-
-    .wcs-cumulative-segment {
-      min-width: 0;
-      height: 100%;
-      justify-content: center;
-      border: 0;
-      border-right: 1px solid rgba(255, 255, 255, 0.75);
-      border-radius: 0;
-      padding: 0;
-      font-size: 0.7rem;
+      padding: 0.65rem 0.85rem;
+      background: #121417;
+      color: #ffffff;
       font-weight: 700;
     }
 
-    .wcs-cumulative-segment.cut .wcs-cumulative-label {
-      display: none;
+    .skip-link:focus {
+      transform: translateY(0);
     }
 
-    .wcs-cumulative-label {
-      padding: 0 0.18rem;
+    .page {
+      width: min(100% - 2.5rem, 860px);
+      margin: 0 auto;
+      padding: 2rem 0 4rem;
     }
 
-    .wcs-threshold-line {
-      display: block;
+    .site-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      padding-bottom: 4.5rem;
     }
 
-    .wcs-threshold-label {
-      position: absolute;
-      display: block;
-      top: 4px;
-      margin-bottom: 0;
-      font-size: 0.72rem;
+    .site-name {
+      color: #15181c;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      text-decoration: none;
     }
 
-    #wcs-minp-list .wcs-minp-row:nth-child(n+9) {
-      display: none;
+    .site-nav {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      font-size: 0.9rem;
+      font-weight: 600;
     }
 
-    .wcs-table {
-      font-size: 0.8rem;
-    }
-  }
-
-  @media (max-width: 430px) {
-    .wcs-post {
-      padding-inline: 1rem;
+    .intro {
+      max-width: 690px;
+      margin-bottom: 3.25rem;
     }
 
-    #wcs-softmax-widget .wcs-live-equation {
-      min-height: 0;
-    }
-  }
-
-  @media (max-width: 340px) {
-    #wcs-softmax-widget .wcs-live-equations {
-      grid-template-columns: 1fr;
+    h1 {
+      margin: 0 0 0.8rem;
+      color: #121417;
+      font-size: clamp(2.5rem, 7vw, 4.25rem);
+      line-height: 1;
+      letter-spacing: -0.045em;
     }
 
-    .wcs-rank-strip {
-      grid-template-columns: 1fr;
+    .intro p {
+      max-width: 40rem;
+      margin: 0;
+      color: #4f555d;
+      font-size: clamp(1.05rem, 2vw, 1.22rem);
+      line-height: 1.65;
     }
-  }
-</style>
-
-<article class="wcs-post">
-  <h1>Are there words LLMs won’t say?</h1>
-
-  <p>
-    LLMs have every English word in their vocabulary, but some of those words may never appear in their output. LLM-generated text is measurably less lexically diverse than human writing, and the reason isn't just the model. It's also the sampler. The researchers at <a href="https://ging.github.io/">GING</a> set out to investigate one possible reason why an LLM might never produce a specific word, even if it is appropriate for a given context.
-  </p>
-
-  <p>
-    When an LLM predicts the next token, it reads the preceding context and produces a logit for every token in its vocabulary. A token can be a whole word, a piece of a word, punctuation, a space, or any other text fragment. For example, Llama 3 has a vocabulary of 128,256 possible tokens. When inferring the next token, each of these options is assigned a logit.
-  </p>
-
-  <p>
-    The logit isn’t a probability but a raw numerical score. A function called softmax turns the logits into probabilities by raising the mathematical constant <strong>e</strong> to the power of each logit, then dividing that value by the sum of all the exponentiated logits.
-  </p>
-
-  <div class="wcs-equation" aria-label="Probability sub i equals e to the logit sub i divided by the sum over j of e to the logit sub j">
-    <span>P<sub>i</sub> =</span>
-    <span class="wcs-frac">
-      <span class="wcs-frac-num">e<sup>logit<sub>i</sub></sup></span>
-      <span class="wcs-frac-den"><span class="wcs-sigma">&Sigma;</span><sub>j</sub> e<sup>logit<sub>j</sub></sup></span>
-    </span>
-  </div>
-
-  <p>
-    Softmax scales based on the raw numerical gap between two numbers, not their ratio. For example, 4:2 and 2:1 represent the same ratio, but the absolute gaps are different: <strong>4 - 2 = 2</strong>, while <strong>2 - 1 = 1</strong>.
-  </p>
-
-  <ul>
-    <li>Applying softmax to <strong>[4, 2]</strong> gives approximately <strong>[0.881, 0.119]</strong>.</li>
-    <li>Applying softmax to <strong>[2, 1]</strong> gives approximately <strong>[0.731, 0.269]</strong>.</li>
-  </ul>
-
-  <p>
-    Even though the ratios are identical, the larger absolute gap makes the higher value much more dominant after softmax is applied.
-  </p>
-
-  <p>
-    Temperature is a variable adjusted during inference, usually treated as a creativity parameter. Increasing the temperature makes the output more varied, while decreasing it makes the model's outputs more deterministic. At <strong>T = 0</strong>, the model enters greedy sampling and always chooses the token with the highest logit.
-  </p>
-
-  <p>
-    During inference, the temperature value scales the logits by dividing each logit by <strong>T</strong>:
-  </p>
-
-  <div class="wcs-equation" aria-label="Scaled logit sub i equals logit sub i divided by T">
-    <span>scaled logit<sub>i</sub> =</span>
-    <span class="wcs-frac">
-      <span class="wcs-frac-num">logit<sub>i</sub></span>
-      <span class="wcs-frac-den">T</span>
-    </span>
-  </div>
-
-  <p>
-    Suppose the prompt is: <strong>A lot of things happened! The first day of the conference was quite</strong>. If <strong>interesting</strong> gets logit 4 and <strong>long</strong> gets logit 2, softmax heavily favors <strong>interesting</strong>. If we set <strong>T = 2</strong>, those logits become <strong>[2, 1]</strong>. The gap narrows, and the probability curve is flattened, reducing the disparity in likelihood between the two options.
-  </p>
-
-  <p>
-    Raising the temperature makes the model less concentrated on its top choice. The most likely token becomes less dominant, giving lower-probability tokens a higher chance of selection.
-  </p>
-
-  <div class="wcs-widget" id="wcs-softmax-widget">
-    <h3>Temperature changes the gap before softmax</h3>
-    <p>
-      Move the temperature slider. The logits stay the same, but the scaled gap changes, and softmax gives the two tokens closer or more distant probabilities.
-    </p>
-
-    <div class="wcs-controls">
-      <div class="wcs-control">
-        <label for="wcs-logit-a">interesting logit: <span id="wcs-logit-a-val">4.0</span></label>
-        <input id="wcs-logit-a" type="range" min="-5" max="8" step="0.1" value="4">
-      </div>
-
-      <div class="wcs-control">
-        <label for="wcs-logit-b">long logit: <span id="wcs-logit-b-val">2.0</span></label>
-        <input id="wcs-logit-b" type="range" min="-5" max="8" step="0.1" value="2">
-      </div>
-
-      <div class="wcs-control">
-        <label for="wcs-temp">temperature: <span id="wcs-temp-val">2.0</span></label>
-        <input id="wcs-temp" type="range" min="0.1" max="3" step="0.1" value="2">
-      </div>
-    </div>
-
-    <div class="wcs-math" id="wcs-softmax-math"></div>
-
-    <div class="wcs-token-row">
-      <div class="wcs-token-name">interesting</div>
-      <div class="wcs-bar-shell"><div class="wcs-bar" id="wcs-bar-a"></div></div>
-      <div id="wcs-prob-a">73.1%</div>
-    </div>
-
-    <div class="wcs-token-row">
-      <div class="wcs-token-name">long</div>
-      <div class="wcs-bar-shell"><div class="wcs-bar" id="wcs-bar-b"></div></div>
-      <div id="wcs-prob-b">26.9%</div>
-    </div>
-  </div>
-
-  <p>
-    But a token can only be chosen if it survives the sampling filter first.
-    Before filtering, every token has some probability, even if that probability is tiny. Sampling filters cut that huge list down to a smaller set of allowed tokens. Then the model randomly chooses from the remaining tokens, weighted by their probabilities.
-  </p>
-
-  <p>
-    The three common sampling filters are <strong>top-k</strong>, <strong>top-p</strong>, and <strong>min-p</strong>.
-  </p>
-
-  <h2>Top-k</h2>
-
-  <p>
-    For <strong>top-k</strong>, we choose a value of k, for example 5. The model ranks tokens by probability, keeps the first 5, and discards everything below rank 5. The final token is sampled from the surviving group.
-  </p>
-
-  <div class="wcs-widget" id="wcs-topk-widget">
-    <h3>Top-k keeps a fixed number of tokens</h3>
-    <p>
-      Change k. The cutoff moves by rank, regardless of the actual probability values.
-    </p>
-
-    <div class="wcs-control">
-      <label for="wcs-topk">k: <span id="wcs-topk-val">5</span></label>
-      <input id="wcs-topk" type="range" min="1" max="15" step="1" value="5">
-    </div>
-
-    <div class="wcs-note" id="wcs-topk-summary"></div>
-    <div class="wcs-rank-strip" id="wcs-topk-strip"></div>
-  </div>
-
-  <h2>Top-p</h2>
-
-  <p>
-    For <strong>top-p</strong>, also called <strong>nucleus sampling</strong>, we choose a probability threshold, for example 0.9. The model starts with the most likely token, then adds the next most likely token, then the next, until the kept tokens together account for at least 90% of the probability mass. Tokens beyond that cutoff are removed.
-  </p>
-
-  <p>
-    So if the top token has probability 40%, the kept set starts at 40%. If the second token has 20%, the kept set grows to 60%. If the third has 12%, it grows to 72%. The model keeps walking down the ranked list until the running total reaches the top-p threshold. After that, the surviving probabilities are renormalized so they add up to 100%.
-  </p>
-
-	  <div class="wcs-widget" id="wcs-topp-widget">
-	    <h3>Top-p keeps tokens until the running total reaches p</h3>
-	    <p>
-	      Green segments survive. Muted red segments are beyond the cutoff. The amber line is the p threshold.
-	    </p>
-
-    <div class="wcs-control">
-      <label for="wcs-topp">p: <span id="wcs-topp-val">0.90</span></label>
-      <input id="wcs-topp" type="range" min="0.50" max="0.99" step="0.01" value="0.90">
-    </div>
-
-    <div class="wcs-cumulative-wrap">
-      <div class="wcs-cumulative-bar" id="wcs-topp-bar"></div>
-      <div class="wcs-threshold-line" id="wcs-topp-threshold"></div>
-      <div class="wcs-threshold-label" id="wcs-topp-threshold-label">p = 90%</div>
-    </div>
-
-    <div class="wcs-note" id="wcs-topp-summary"></div>
-    <div id="wcs-topp-list"></div>
-  </div>
-
-  <h2>Min-p</h2>
-
-  <p>
-    For <strong>min-p</strong>, the cutoff is based on the probability of the most likely token. If min-p is 0.05 and the top token has probability 40%, then the cutoff is:
-  </p>
-
-  <pre><code>0.05 × 40% = 2%</code></pre>
-
-  <p>
-    Every token below 2% is discarded. This makes min-p dynamic. When the top token is very strong, the cutoff becomes stricter. When the top token is weaker, the cutoff relaxes.
-  </p>
-
-	  <div class="wcs-widget" id="wcs-minp-widget">
-	    <h3>Min-p keeps tokens above a threshold relative to the top token</h3>
-	    <p>
-	      The amber line is the cutoff. Green bars survive; muted red bars are removed.
-	    </p>
-
-    <div class="wcs-controls">
-      <div class="wcs-control">
-        <label for="wcs-minp">min-p: <span id="wcs-minp-val">0.05</span></label>
-        <input id="wcs-minp" type="range" min="0.01" max="0.30" step="0.01" value="0.05">
-      </div>
-
-      <div class="wcs-control">
-        <label for="wcs-minp-top">top token probability: <span id="wcs-minp-top-val">40%</span></label>
-        <input id="wcs-minp-top" type="range" min="0.25" max="0.80" step="0.01" value="0.40">
-      </div>
-    </div>
-
-    <div class="wcs-note" id="wcs-minp-summary"></div>
-    <div id="wcs-minp-list"></div>
-  </div>
-
-  <p>
-    After temperature and sampling filters are applied, the model samples one token from the surviving set.
-  </p>
-
-  <p>
-    A token can have a real probability in the model’s distribution and still become impossible to output after filtering. Once the sampler removes it, the model cannot choose it in that step.
-  </p>
-
-  <h2>Word Context Survival</h2>
-
-  <p>
-    We recently published <a href="https://arxiv.org/abs/2605.27268">a paper</a> investigating whether common sampler settings filter out relatively common English words, rendering them impossible for LLMs to generate. We began by defining a frequency range of 10k to 40k on a word frequency list. These words are common enough that a human author uses them naturally. Examples closer to the 10k rank include <em>poison</em>, <em>ethnicity</em>, <em>tourists</em>, <em>fatigue</em>, <em>coil</em>, and <em>consuming</em>. On the rarer end, approaching the 40k rank, examples include <em>instinctively</em>, <em>stiletto</em>, <em>eventful</em>, <em>lobsters</em>, <em>moustache</em>, <em>coals</em>, and <em>succulent</em>. We randomly selected 100 words from this range; the full list is available <a href="https://wordsgpt.github.io/WCS/word_list.html">here</a>.
-  </p>
-
-  <p>
-    We searched for these words within PG19, a large corpus of human-authored texts. For each word, we extracted its surrounding context and verified with an LLM that the word makes sense in that context. This accounts for OCR or printing errors, and was necessary to automate because we looked at 1,000 contexts.
-  </p>
-
-  <figure class="wcs-figure wcs-pipeline-figure">
-    <img src="assets/wcs-process-overview.png" alt="Overview of the Word Context Survival pipeline: lexical selection, contextual pairing, sampler audit, and metric calculation.">
-    <figcaption>Overview of the Word Context Survival pipeline, from selecting mid-frequency target words to auditing whether sampler filters preserve them in context.</figcaption>
-  </figure>
-
-  <p>
-    We then tested the logits assigned to each target word in its context across multiple open-weights LLMs. Using this data, we calculated whether the word would survive the initial selection phase under various sampler settings to remain a viable output option. We defined this using a binary reachability formula <strong>R<sub>&theta;</sub>(w, c) &isin; {0, 1}</strong>, which we aggregated into a Word Context Survival score across the corpus:
-  </p>
-
-  <div class="wcs-equation" aria-label="Word Context Survival theta equals one over the size of D times the sum of reach of w c">
-    <span>WCS<sub>&theta;</sub> =</span>
-    <span class="wcs-frac">
-      <span class="wcs-frac-num">1</span>
-      <span class="wcs-frac-den">|D|</span>
-    </span>
-    <span><span class="wcs-sigma">&Sigma;</span> reach(w, c)</span>
-  </div>
-
-  <p>
-    When sampler constraints are drastically loosened, allowing more tokens to survive sampling filters, most models predicted the majority of the words in at least one context. This confirms the models possess the vocabulary and are capable of producing the target word in the human context.
-  </p>
-
-  <p>
-    However, at recommended settings, every model tested failed to predict some of the words across all contexts, meaning that some words were not accessible in any tested context for certain models at the default settings. The percentage of words not predicted a single time at default settings ranged from 20% to 45%; interactive visualizers of these results can be viewed <a href="https://wordsgpt.github.io/WCS/index.html">here</a>.
-  </p>
-
-  <p>
-    We also evaluated the impact of temperature (<strong>T</strong>). Under top-p sampling, raising <strong>T</strong> from 0.7 to 1.0 yielded a significant increase in WCS, with diminishing returns as <strong>T</strong> approached 1.5. Because top-k sampling is purely rank-order based, the set of tokens it filters is entirely unaffected by temperature. Min-p proved less sensitive to temperature scaling than top-p; scaling <strong>T</strong> from 0.7 to 1.5 was required to increase the WCS for Llama-3.1-8B from 32.8% to 57.2%, whereas top-p achieves similar absolute gains merely scaling from 0.7 to 1.0.
-  </p>
-
-  <p>
-    We believe that with our paper we’ve introduced a way to quantitatively measure the effect of sampler settings on lexical diversity. As LLMs write more of the words we read, it’s important that we don’t lose the nuances and breadth of the language over time based on LLM influence. The effect of this is already visible and measurable, with the popularity of certain words in academic publishing rising and dropping with LLM trends; see <a href="https://arxiv.org/html/2502.09606v2">Geng &amp; Trotta, 2025</a>.
-  </p>
-
-  <figure class="wcs-figure">
-    <img src="assets/llm-academic-word-trends.png" alt="Four line charts showing shifts in selected word frequencies in academic abstracts between 2018 and 2025, with markers for December 2022 and March 2024.">
-    <figcaption>Word-frequency shifts in academic abstracts around major LLM adoption periods, illustrating that model-associated language trends can become visible in human-facing text. Source: <a href="https://arxiv.org/html/2502.09606v2">Geng &amp; Trotta, 2025</a>.</figcaption>
-  </figure>
-
-  <p>
-    At GING we research the limits and capabilities of LLMs, the applications of AI in science, research, psycholinguistics, and education. If you’re looking for collaborators or have ideas you want to discuss, feel free to reach out.
-  </p>
-
-  <p>
-    If you’re interested in whatever we publish next or my thoughts on AI, languages, and language learning, you can sign up for the mailing list or follow via RSS.
-  </p>
-
-  <section class="wcs-subscribe" aria-labelledby="wcs-subscribe-title">
-    <h2 id="wcs-subscribe-title">Stay in the loop</h2>
-    <p>
-      Get new posts delivered to your inbox, or follow via RSS.
-    </p>
-    <div class="wcs-mailoctopus-form">
-      <script async src="https://eocampaign1.com/form/5e4725aa-7ad1-11f1-aa85-53112f7c2f68.js" data-form="5e4725aa-7ad1-11f1-aa85-53112f7c2f68">
-      </script>
-    </div>
-    <div class="wcs-subscribe-actions">
-      <a class="wcs-subscribe-button" href="feed.xml">RSS feed</a>
-      <a class="wcs-subscribe-button" href="https://github.com/hax2/blog">GitHub</a>
-    </div>
-  </section>
-
-</article>
-
-<script>
-(function () {
-  const tokens = [
-    { token: "busy", p: 0.40 },
-    { token: "boring", p: 0.20 },
-    { token: "a", p: 0.12 },
-    { token: "interesting", p: 0.08 },
-    { token: "exciting", p: 0.05 },
-    { token: "hectic", p: 0.04 },
-    { token: "different", p: 0.03 },
-    { token: "good", p: 0.02 },
-    { token: "chaotic", p: 0.015 },
-    { token: "event", p: 0.012 },
-    { token: "difficult", p: 0.01 },
-    { token: "long", p: 0.008 },
-    { token: "intense", p: 0.006 },
-    { token: "t", p: 0.005 },
-    { token: "an", p: 0.004 }
-  ];
-
-  function $(id) {
-    return document.getElementById(id);
-  }
-
-  function pct(x, digits = 1) {
-    return (x * 100).toFixed(digits) + "%";
-  }
-
-  function num(x, digits = 2) {
-    return Number(x).toFixed(digits);
-  }
-
-  function html(x) {
-    return String(x)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  function softmaxTwo(a, b) {
-    const m = Math.max(a, b);
-    const ea = Math.exp(a - m);
-    const eb = Math.exp(b - m);
-    const sum = ea + eb;
-    return { a: ea / sum, b: eb / sum };
-  }
-
-  function updateSoftmax() {
-    const logitA = parseFloat($("wcs-logit-a").value);
-    const logitB = parseFloat($("wcs-logit-b").value);
-    const temp = parseFloat($("wcs-temp").value);
-
-    const scaledA = logitA / temp;
-    const scaledB = logitB / temp;
-    const gap = scaledA - scaledB;
-    const ratio = Math.exp(gap);
-    const probs = softmaxTwo(scaledA, scaledB);
-
-    $("wcs-logit-a-val").textContent = num(logitA, 1);
-    $("wcs-logit-b-val").textContent = num(logitB, 1);
-    $("wcs-temp-val").textContent = num(temp, 1);
-
-    $("wcs-softmax-math").innerHTML = `
-      <div class="wcs-live-equations">
-        <div class="wcs-live-equation">
-          <span class="wcs-live-label">Scaled logits</span>
-          <span class="wcs-live-values">
-            <span>${num(logitA, 1)} / ${num(temp, 1)} = ${num(scaledA, 2)}</span>
-            <span>${num(logitB, 1)} / ${num(temp, 1)} = ${num(scaledB, 2)}</span>
-          </span>
-        </div>
-        <div class="wcs-live-equation">
-          <span class="wcs-live-label">Scaled gap</span>
-          <span class="wcs-live-value">${num(scaledA, 2)} - ${num(scaledB, 2)} = ${num(gap, 2)}</span>
-        </div>
-        <div class="wcs-live-equation">
-          <span class="wcs-live-label">Probability ratio</span>
-          <span class="wcs-live-value">e<sup>${num(gap, 2)}</sup> = ${num(ratio, 2)} : 1</span>
-        </div>
-      </div>
-    `;
-
-    $("wcs-bar-a").style.width = pct(probs.a);
-    $("wcs-bar-b").style.width = pct(probs.b);
-    $("wcs-prob-a").textContent = pct(probs.a);
-    $("wcs-prob-b").textContent = pct(probs.b);
-  }
-
-  function updateTopK() {
-    const k = parseInt($("wcs-topk").value, 10);
-    $("wcs-topk-val").textContent = k;
-
-    const keptMass = tokens.slice(0, k).reduce((sum, t) => sum + t.p, 0);
-
-    $("wcs-topk-summary").textContent =
-      "Ranks 1–" + k + " survive. Everything below rank " + k + " is removed. Surviving mass before renormalization: " + pct(keptMass) + ".";
-
-    $("wcs-topk-strip").innerHTML = tokens.map((t, i) => {
-      const kept = i < k;
-      return `
-        <div class="wcs-rank-card ${kept ? "" : "cut"}">
-          <span class="wcs-rank-number">rank ${i + 1}</span>
-          <span class="wcs-rank-token">${html(t.token)}</span>
-          <span class="wcs-rank-prob">${pct(t.p)}</span>
-        </div>
-      `;
-    }).join("");
-  }
-
-  function updateTopP() {
-    const p = parseFloat($("wcs-topp").value);
-    $("wcs-topp-val").textContent = num(p, 2);
-
-    let cumulative = 0;
-    let cutoffIndex = tokens.length - 1;
-
-    for (let i = 0; i < tokens.length; i++) {
-      cumulative += tokens[i].p;
-      if (cumulative >= p) {
-        cutoffIndex = i;
-        break;
+
+    .posts-heading {
+      margin: 0 0 1rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .post-card {
+      display: grid;
+      gap: 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: clamp(1.25rem, 4vw, 2rem);
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: 0 1px 0 rgba(31, 35, 40, 0.04);
+    }
+
+    .post-card time {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .post-card h2 {
+      max-width: 20ch;
+      margin: 0;
+      font-size: clamp(1.55rem, 4vw, 2.15rem);
+      line-height: 1.17;
+      letter-spacing: -0.025em;
+    }
+
+    .post-card h2 a {
+      color: #171a1e;
+      text-decoration: none;
+    }
+
+    .post-card h2 a::after {
+      content: " →";
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .post-card p {
+      max-width: 42rem;
+      margin: 0;
+      color: #51575f;
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    .post-topics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin: 0.2rem 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .post-topics li {
+      border: 1px solid #d8e2e8;
+      border-radius: 999px;
+      padding: 0.22rem 0.55rem;
+      background: #f2f7f9;
+      color: #34576c;
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+
+    .site-footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.75rem 1.5rem;
+      margin-top: 4rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1.25rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1rem;
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        width: min(100% - 2rem, 860px);
+        padding-top: 1.35rem;
+      }
+
+      .site-header {
+        padding-bottom: 3.5rem;
+      }
+
+      .site-nav {
+        gap: 0.75rem;
+      }
+
+      .intro {
+        margin-bottom: 2.5rem;
+      }
+
+      .site-footer {
+        display: grid;
       }
     }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#posts">Skip to posts</a>
+  <div class="page">
+    <header class="site-header">
+      <a class="site-name" href="https://samermakes.com/">Samer Makes</a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="https://samermakes.com/">Home</a>
+        <a href="feed.xml">RSS</a>
+      </nav>
+    </header>
 
-    const kept = tokens.slice(0, cutoffIndex + 1);
-    const keptMass = kept.reduce((sum, t) => sum + t.p, 0);
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <h1 id="page-title">Blog</h1>
+        <p>Notes and visual explanations about AI, language, language learning, and research.</p>
+      </section>
 
-    $("wcs-topp-threshold").style.left = pct(p, 2);
-    $("wcs-topp-threshold-label").style.left = pct(p, 2);
-    $("wcs-topp-threshold-label").classList.toggle("align-left", p > 0.82);
-    $("wcs-topp-threshold-label").textContent = "p = " + pct(p, 0);
+      <section id="posts" aria-labelledby="posts-title">
+        <h2 class="posts-heading" id="posts-title">Latest writing</h2>
+        <article class="post-card">
+          <time datetime="2026-07-08">July 8, 2026</time>
+          <h2><a href="WCS/">Are there words LLMs won’t say?</a></h2>
+          <p>A visual explanation of temperature, top-k, top-p, min-p, and how sampling filters can make contextually appropriate words unreachable.</p>
+          <ul class="post-topics" aria-label="Topics">
+            <li>AI</li>
+            <li>Language</li>
+            <li>Research</li>
+          </ul>
+        </article>
+      </section>
+    </main>
 
-    $("wcs-topp-bar").innerHTML = tokens.map((t, i) => {
-      return `
-        <div
-          class="wcs-cumulative-segment ${i <= cutoffIndex ? "" : "cut"}"
-          style="width: ${pct(t.p, 3)}"
-          title="${html(t.token)}: ${pct(t.p)}"
-        >
-          <span class="wcs-cumulative-label">${html(t.token)}</span>
-        </div>
-      `;
-    }).join("");
-
-    $("wcs-topp-summary").textContent =
-      "Top-p walks left to right through the ranked probabilities. Here it keeps " +
-      kept.length +
-      " tokens, reaching " +
-      pct(keptMass) +
-      " total mass. Everything after that is cut.";
-
-    let running = 0;
-    $("wcs-topp-list").innerHTML = tokens.map((t, i) => {
-      running += t.p;
-      const survives = i <= cutoffIndex;
-      return `
-        <div class="wcs-token-row wcs-topp-row ${survives ? "" : "cut"}">
-          <div class="wcs-token-name">${i + 1}. ${html(t.token)}</div>
-          <div class="wcs-bar-shell">
-            <div class="wcs-bar" style="width: ${pct(t.p / tokens[0].p)}"></div>
-          </div>
-          <div class="wcs-topp-meta">${pct(t.p)} | cum ${pct(running)}</div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  function updateMinP() {
-    const minp = parseFloat($("wcs-minp").value);
-    const top = parseFloat($("wcs-minp-top").value);
-    const tailMass = tokens.slice(1).reduce((sum, t) => sum + t.p, 0);
-    const tailScale = (1 - top) / tailMass;
-    const minpTokens = tokens.map((t, i) => {
-      if (i === 0) return { ...t, p: top };
-      return { ...t, p: t.p * tailScale };
-    });
-
-    $("wcs-minp-val").textContent = num(minp, 2);
-    $("wcs-minp-top-val").textContent = pct(top, 0);
-
-    const cutoff = minp * top;
-    const kept = minpTokens.filter(t => t.p >= cutoff);
-    const keptMass = kept.reduce((sum, t) => sum + t.p, 0);
-
-    $("wcs-minp-summary").textContent =
-      "Top token probability = " +
-      pct(top) +
-      ". Cutoff = " +
-      num(minp, 2) +
-      " × " +
-      pct(top) +
-      " = " +
-      pct(cutoff, 2) +
-      ". " +
-      kept.length +
-      " tokens survive, with " +
-      pct(keptMass) +
-      " total mass before renormalization.";
-
-    $("wcs-minp-list").innerHTML = minpTokens.map((t) => {
-      const survives = t.p >= cutoff;
-      const width = t.p / top;
-      const cutoffPos = cutoff / top;
-
-      return `
-        <div class="wcs-minp-row ${survives ? "" : "cut"}">
-          <div class="wcs-token-name">${html(t.token)}</div>
-          <div class="wcs-minp-bar-area">
-            <div class="wcs-minp-cutoff" style="left: ${pct(cutoffPos, 3)}"></div>
-            <div class="wcs-minp-bar" style="width: ${pct(width, 3)}"></div>
-          </div>
-          <div>${pct(t.p)}</div>
-          <div><span class="wcs-pill ${survives ? "" : "cut"}">${survives ? "kept" : "cut"}</span></div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  [
-    "wcs-logit-a",
-    "wcs-logit-b",
-    "wcs-temp"
-  ].forEach(id => {
-    $(id).addEventListener("input", updateSoftmax);
-  });
-
-  $("wcs-topk").addEventListener("input", updateTopK);
-  $("wcs-topp").addEventListener("input", updateTopP);
-  $("wcs-minp").addEventListener("input", updateMinP);
-  $("wcs-minp-top").addEventListener("input", updateMinP);
-
-  updateSoftmax();
-  updateTopK();
-  updateTopP();
-  updateMinP();
-})();
-</script>
+    <footer class="site-footer">
+      <span>© 2026 Samer Awad</span>
+      <div class="footer-links">
+        <a href="feed.xml">RSS feed</a>
+        <a href="https://github.com/hax2/blog">Source</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
