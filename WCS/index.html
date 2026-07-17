@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Are there words LLMs won’t say? — Samer Makes</title>
 <meta name="description" content="A visual explanation of temperature, top-k, top-p, min-p, and the Word Coverage Score in LLM sampling.">
-<meta name="author" content="Samer Awad">
+<meta name="author" content="Samer">
 <link rel="canonical" href="https://samermakes.com/blog/WCS/">
 <link rel="alternate" type="application/rss+xml" title="Samer Makes RSS feed" href="../feed.xml">
 <meta property="og:type" content="article">
@@ -141,46 +141,6 @@
     color: var(--wcs-muted);
     font-size: 0.86rem;
     line-height: 1.4;
-  }
-
-  .wcs-takeaways {
-    margin: 1.8rem 0 2rem;
-    border: 1px solid var(--wcs-border);
-    border-radius: 10px;
-    padding: 1.1rem 1.2rem;
-    background: rgba(255, 255, 255, 0.66);
-  }
-
-  .wcs-post .wcs-takeaways h2 {
-    margin: 0 0 0.55rem;
-    font-size: 1.15rem;
-  }
-
-  .wcs-post .wcs-takeaways ul {
-    margin: 0;
-  }
-
-  .wcs-on-this-page {
-    margin: 0 0 2.3rem;
-    border-bottom: 1px solid var(--wcs-rule);
-    padding-bottom: 1.3rem;
-    font-size: 0.9rem;
-    line-height: 1.5;
-  }
-
-  .wcs-on-this-page strong {
-    display: block;
-    margin-bottom: 0.45rem;
-    color: #2c3137;
-  }
-
-  .wcs-on-this-page ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem 1rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
   }
 
   .wcs-post h1 {
@@ -720,16 +680,6 @@
       font-size: 1.02em;
     }
 
-    .wcs-takeaways {
-      padding: 1rem;
-    }
-
-    .wcs-on-this-page ul {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.35rem 0.8rem;
-    }
-
     .wcs-post h2 {
       margin-top: 2.65rem;
       margin-bottom: 0.7rem;
@@ -1004,10 +954,6 @@
   }
 
   @media (max-width: 340px) {
-    .wcs-on-this-page ul {
-      grid-template-columns: 1fr;
-    }
-
     #wcs-softmax-widget .wcs-live-equations {
       grid-template-columns: 1fr;
     }
@@ -1030,31 +976,11 @@
     <h1>Are there words LLMs won’t say?</h1>
     <p class="wcs-dek">How temperature and common sampling filters can make a contextually appropriate word impossible for a language model to choose.</p>
     <div class="wcs-byline">
-      <span>By Samer Awad</span>
+      <span>By Samer</span>
       <span aria-hidden="true">·</span>
       <time datetime="2026-07-08">July 8, 2026</time>
     </div>
   </header>
-
-  <section class="wcs-takeaways" aria-labelledby="wcs-takeaways-title">
-    <h2 id="wcs-takeaways-title">In short</h2>
-    <ul>
-      <li>Temperature reshapes the probability distribution before filtering.</li>
-      <li>Top-k, top-p, and min-p can remove plausible tokens from the candidate set.</li>
-      <li>The Word Coverage Score measures how often target words remain reachable.</li>
-    </ul>
-  </section>
-
-  <nav class="wcs-on-this-page" aria-label="On this page">
-    <strong>On this page</strong>
-    <ul>
-      <li><a href="#temperature">Temperature</a></li>
-      <li><a href="#top-k">Top-k</a></li>
-      <li><a href="#top-p">Top-p</a></li>
-      <li><a href="#min-p">Min-p</a></li>
-      <li><a href="#word-coverage-score">Word Coverage Score</a></li>
-    </ul>
-  </nav>
 
   <p>
     LLMs have every English word in their vocabulary, but some of those words may never appear in their output. LLM-generated text is measurably less lexically diverse than human writing. The researchers at <a href="https://ging.github.io/">GING</a> set out to investigate one possible reason why an LLM might never produce a specific word, even if it is appropriate for a given context.
