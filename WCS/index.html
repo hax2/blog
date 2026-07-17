@@ -124,14 +124,6 @@
     margin-bottom: 0.8rem;
   }
 
-  .wcs-post .wcs-dek {
-    max-width: 42rem;
-    margin: 0;
-    color: #454b53;
-    font-size: 1.08em;
-    line-height: 1.55;
-  }
-
   .wcs-byline {
     display: flex;
     flex-wrap: wrap;
@@ -682,10 +674,6 @@
       margin-bottom: 0.75rem;
     }
 
-    .wcs-dek {
-      font-size: 1.02em;
-    }
-
     .wcs-post h2 {
       margin-top: 2.65rem;
       margin-bottom: 0.7rem;
@@ -980,7 +968,6 @@
 
   <header class="wcs-post-header">
     <h1>Are there words LLMs won’t say?</h1>
-    <p class="wcs-dek">How temperature and common sampling filters can make a contextually appropriate word impossible for a language model to choose.</p>
     <div class="wcs-byline">
       <span>By Samer</span>
       <span aria-hidden="true">·</span>
@@ -1191,7 +1178,7 @@
   <h2 id="word-coverage-score">Word Coverage Score</h2>
 
   <p>
-    We recently published <a href="https://arxiv.org/abs/2605.27268">a paper</a> investigating whether common sampler settings filter out relatively common English words, rendering them impossible for LLMs to generate. We began by defining a frequency range of 10k to 40k on a word frequency list. These words are common enough that a human author uses them naturally. Examples closer to the 10k rank include <em>poison</em>, <em>ethnicity</em>, <em>tourists</em>, <em>fatigue</em>, <em>coil</em>, and <em>consuming</em>. On the rarer end, approaching the 40k rank, examples include <em>instinctively</em>, <em>stiletto</em>, <em>eventful</em>, <em>lobsters</em>, <em>moustache</em>, <em>coals</em>, and <em>succulent</em>. We randomly selected 100 words from this range; the full list is available <a href="https://wordsgpt.github.io/WCS/word_list.html">here</a>.
+    We recently released <a href="https://arxiv.org/abs/2605.27268">a preprint</a> investigating whether common sampler settings filter out relatively common English words, rendering them impossible for LLMs to generate. We began by defining a frequency range of 10k to 40k on a word frequency list. These words are common enough that a human author uses them naturally. Examples closer to the 10k rank include <em>poison</em>, <em>ethnicity</em>, <em>tourists</em>, <em>fatigue</em>, <em>coil</em>, and <em>consuming</em>. On the rarer end, approaching the 40k rank, examples include <em>instinctively</em>, <em>stiletto</em>, <em>eventful</em>, <em>lobsters</em>, <em>moustache</em>, <em>coals</em>, and <em>succulent</em>. We randomly selected 100 words from this range; the full list is available <a href="https://wordsgpt.github.io/WCS/word_list.html">here</a>.
   </p>
 
   <p>
