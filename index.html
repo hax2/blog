@@ -150,6 +150,10 @@
       box-shadow: 0 1px 0 rgba(31, 35, 40, 0.04);
     }
 
+    .post-card + .post-card {
+      margin-top: 1.15rem;
+    }
+
     .post-card time {
       color: var(--muted);
       font-size: 0.82rem;
@@ -263,6 +267,15 @@
 
       <section id="posts" aria-labelledby="posts-title">
         <h2 class="posts-heading" id="posts-title">Latest writing</h2>
+        <article class="post-card">
+          <time datetime="2026-11-18">November 18, 2026</time>
+          <h2><a href="just-ask-your-agent/">Just ask your agent</a></h2>
+          <p>On hesitating to prompt agents with seemingly impossible tasks, unknown unknowns, and presenting your grievances with reality to an agent.</p>
+          <ul class="post-topics" aria-label="Topics">
+            <li>AI</li>
+            <li>Agents</li>
+          </ul>
+        </article>
         <article class="post-card">
           <time datetime="2026-07-08">July 8, 2026</time>
           <h2><a href="WCS/">Are there words LLMs won’t say?</a></h2>

@@ -6,7 +6,14 @@
     <atom:link href="https://samermakes.com/blog/feed.xml" rel="self" type="application/rss+xml"/>
     <description>Posts about AI, language, language learning, and research.</description>
     <language>en-us</language>
-    <lastBuildDate>Fri, 17 Jul 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 18 Nov 2026 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Just ask your agent</title>
+      <link>https://samermakes.com/blog/just-ask-your-agent/</link>
+      <guid isPermaLink="true">https://samermakes.com/blog/just-ask-your-agent/</guid>
+      <pubDate>Wed, 18 Nov 2026 00:00:00 +0000</pubDate>
+      <description>On hesitating to prompt agents with seemingly impossible tasks, unknown unknowns, and presenting your grievances with reality to an agent.</description>
+    </item>
     <item>
       <title>Are there words LLMs won’t say?</title>
       <link>https://samermakes.com/blog/WCS/</link>

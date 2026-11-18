@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Just ask your agent — Samer Makes</title>
+<meta name="description" content="On hesitating to prompt agents with seemingly impossible tasks, unknown unknowns, and presenting your grievances with reality to an agent.">
+<meta name="author" content="Samer">
+<link rel="canonical" href="https://samermakes.com/blog/just-ask-your-agent/">
+<link rel="alternate" type="application/rss+xml" title="Samer Makes RSS feed" href="../feed.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Samer Makes">
+<meta property="og:title" content="Just ask your agent">
+<meta property="og:description" content="Ask what you believe is impossible of an agent, and it might surprise you.">
+<meta property="og:url" content="https://samermakes.com/blog/just-ask-your-agent/">
+<meta property="article:published_time" content="2026-11-18">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+
+<style>
+  html {
+    background: #f7f6f2;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      linear-gradient(180deg, rgba(40, 95, 130, 0.08), rgba(40, 95, 130, 0) 14rem),
+      #f7f6f2;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .post-skip-link {
+    position: fixed;
+    z-index: 100;
+    top: 0.75rem;
+    left: 0.75rem;
+    transform: translateY(-200%);
+    border-radius: 7px;
+    padding: 0.65rem 0.85rem;
+    background: #121417;
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .post-skip-link:focus {
+    transform: translateY(0);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .blog-post {
+    --post-page-bg: transparent;
+    --post-surface: #ffffff;
+    --post-soft-surface: #f6f3ee;
+    --post-text: #1f2328;
+    --post-muted: #666b73;
+    --post-border: #ded8cf;
+    --post-accent: #285f82;
+    box-sizing: border-box;
+    width: min(100%, 840px);
+    margin: 0 auto;
+    padding: 3rem 1.35rem 4.5rem;
+    background: var(--post-page-bg);
+    font-size: 1.2rem;
+    line-height: 1.75;
+    color: var(--post-text);
+    text-rendering: optimizeLegibility;
+  }
+
+  .blog-post *,
+  .blog-post *::before,
+  .blog-post *::after {
+    box-sizing: inherit;
+  }
+
+  .blog-post a {
+    color: var(--post-accent);
+    text-decoration-color: rgba(40, 95, 130, 0.35);
+    text-underline-offset: 0.15em;
+  }
+
+  .blog-post a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .blog-post a:focus-visible {
+    outline: 3px solid rgba(40, 95, 130, 0.35);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  .post-breadcrumb {
+    margin-bottom: 1.4rem;
+    color: var(--post-muted);
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .post-breadcrumb a {
+    color: inherit;
+  }
+
+  .post-header {
+    margin-bottom: 2rem;
+  }
+
+  .blog-post h1 {
+    max-width: 24ch;
+    font-size: clamp(2rem, 5.5vw, 3rem);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.8rem;
+    color: #121417;
+    font-weight: 800;
+  }
+
+  .post-byline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.55rem;
+    align-items: center;
+    margin-top: 0.9rem;
+    color: var(--post-muted);
+    font-size: 0.86rem;
+    line-height: 1.4;
+  }
+
+  .blog-post h2 {
+    font-size: clamp(1.4rem, 2.5vw, 1.75rem);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    margin: 3rem 0 0.9rem;
+    color: #16191d;
+    font-weight: 700;
+  }
+
+  .blog-post p {
+    margin: 1.12rem 0;
+  }
+
+  .post-cite {
+    font-size: 0.72em;
+    font-weight: 600;
+    line-height: 0;
+    vertical-align: super;
+    margin-left: 0.08em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .post-cite a {
+    text-decoration: none;
+    padding: 0.05em 0.12em;
+    border-radius: 3px;
+  }
+
+  .post-cite a:hover {
+    text-decoration: underline;
+    background: rgba(40, 95, 130, 0.08);
+  }
+
+  .post-cite a:target {
+    background: rgba(40, 95, 130, 0.12);
+  }
+
+  .post-notes {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--post-muted);
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--post-border);
+    padding-top: 1.1rem;
+  }
+
+  .post-notes-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .post-notes-list li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.55rem;
+    align-items: baseline;
+    padding: 0.35rem 0.5rem;
+    margin-inline: -0.5rem;
+    border-radius: 6px;
+    transition: background-color 0.25s ease;
+  }
+
+  .post-notes-list li:target {
+    background: rgba(40, 95, 130, 0.08);
+    color: var(--post-text);
+  }
+
+  .post-note-num {
+    font-weight: 600;
+    color: var(--post-accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .post-note-backref {
+    margin-left: 0.25rem;
+    text-decoration: none;
+    font-size: 0.88em;
+  }
+
+  .post-subscribe {
+    margin-top: 2.75rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--post-border);
+  }
+
+  .post-subscribe h2 {
+    margin-top: 0;
+  }
+
+  .post-subscribe p {
+    max-width: 34rem;
+    color: var(--post-muted);
+    font-size: 0.98rem;
+    line-height: 1.55;
+  }
+
+  .post-subscribe-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1rem;
+  }
+
+  .post-mailoctopus-form {
+    max-width: 34rem;
+    margin-top: 1rem;
+  }
+
+  .post-mailoctopus-form:empty {
+    min-height: 3.2rem;
+  }
+
+  .post-subscribe-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.55rem;
+    border: 1px solid var(--post-border);
+    border-radius: 8px;
+    padding: 0.55rem 0.8rem;
+    background: var(--post-surface);
+    color: var(--post-text);
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+  }
+
+  @media (max-width: 650px) {
+    .blog-post {
+      padding: 1.35rem 1.08rem 3.25rem;
+      font-size: 1.125rem;
+      line-height: 1.7;
+    }
+
+    .blog-post h1 {
+      max-width: 100%;
+      margin-bottom: 0.75rem;
+      font-size: clamp(1.8rem, 8vw, 2.4rem);
+      line-height: 1.15;
+    }
+
+    .blog-post h2 {
+      margin-top: 2.65rem;
+      margin-bottom: 0.7rem;
+      font-size: clamp(1.3rem, 6vw, 1.5rem);
+      line-height: 1.25;
+    }
+
+    .blog-post p {
+      margin: 1.18rem 0;
+    }
+
+    .post-subscribe {
+      margin-top: 2.35rem;
+    }
+
+    .post-subscribe-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .post-mailoctopus-form {
+      max-width: none;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .blog-post {
+      padding-inline: 1rem;
+    }
+  }
+</style>
+</head>
+<body>
+<a class="post-skip-link" href="#main-content">Skip to article</a>
+<main id="main-content">
+<article class="blog-post">
+  <nav class="post-breadcrumb" aria-label="Breadcrumb">
+    <a href="https://samermakes.com/">Samer Makes</a> / <a href="../">Blog</a> / Just ask your agent
+  </nav>
+
+  <header class="post-header">
+    <h1>Just ask your agent</h1>
+    <div class="post-byline">
+      <span>By Samer</span>
+      <span aria-hidden="true">·</span>
+      <time datetime="2026-11-18">November 18, 2026</time>
+    </div>
+  </header>
+
+  <p>
+    I have ideas for projects that I think could be difficult, and I’m a highly AI enabled person so when I think a project could be difficult, it’s because I think it would be difficult even with agents handling all the grunt work, and this is with me having a very good idea of what agents are capable of, because I assume they’ll run into some system that’s meant to allow only humans, or a paywall, gated datasets, or that the model would reject the task as our caretakers and moral arbiters in Silicon Valley might decide it’s unaligned.
+  </p>
+
+  <p>
+    Having these doubts about the agents’ abilities and likelihood of success makes sending the prompt a daunting task that I put off and I’m sure I’ve lost some good ideas to this hesitation.
+  </p>
+
+  <p>
+    Basically every time I’ve gone and sent that prompt I thought the AI would fail at or reject, it’s just gone and one shotted it, and if not it would make significant progress towards it, or identified the blockers which were more surmountable than I imagined.
+  </p>
+
+  <p>
+    Unknown unknowns, if you’re unfamiliar with regular expressions you might think some task (for example renaming every file in a folder to follow a standard format) will be daunting when it can be handled with one line of regex, now extrapolate this to every single subject that LLMs know<sup class="post-cite"><a href="#note-1" id="ref-1" role="doc-noteref" aria-describedby="notes-heading">[1]</a></sup> more than you about. Ask what you believe is impossible of an agent, and it might surprise you.
+  </p>
+
+  <p>
+    I think it would be wise to present whatever grievance you have with reality to your agent, and to see what they can do about it, any minor bit of friction that you encounter and think is just a fact of life, might be solvable in a way that you don’t know, and when it’s gone you won’t have to think about it again, life can really be how you want it to be.
+  </p>
+
+  <footer class="post-notes" aria-labelledby="notes-heading">
+    <h2 class="sr-only" id="notes-heading">Notes</h2>
+    <ol class="post-notes-list">
+      <li id="note-1">
+        <span class="post-note-num">[1]</span>
+        <span>LLMs are incapable of knowledge and it can be foolish to anthropomorphize them, but at the same time it can be useful to model them or think about them as if they know. <a class="post-note-backref" href="#ref-1" role="doc-backlink" aria-label="Jump back to reference 1 in text">↩</a></span>
+      </li>
+    </ol>
+  </footer>
+
+  <section class="post-subscribe" aria-labelledby="post-subscribe-title">
+    <h2 id="post-subscribe-title">Stay in the loop</h2>
+    <p>
+      Get new posts delivered to your inbox, or follow via RSS.
+    </p>
+    <div class="post-mailoctopus-form">
+      <script async src="https://eocampaign1.com/form/5e4725aa-7ad1-11f1-aa85-53112f7c2f68.js" data-form="5e4725aa-7ad1-11f1-aa85-53112f7c2f68">
+      </script>
+    </div>
+    <div class="post-subscribe-actions">
+      <a class="post-subscribe-button" href="../feed.xml">RSS feed</a>
+      <a class="post-subscribe-button" href="https://github.com/hax2/blog">GitHub</a>
+    </div>
+  </section>
+
+</article>
+</main>
+</body>
+</html>
