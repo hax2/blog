@@ -22,7 +22,6 @@
 <style>
   html {
     background: #f7f6f2;
-    scroll-behavior: smooth;
   }
 
   body {
@@ -49,18 +48,6 @@
 
   .post-skip-link:focus {
     transform: translateY(0);
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
   }
 
   .blog-post {
@@ -98,7 +85,8 @@
     text-decoration-color: currentColor;
   }
 
-  .blog-post a:focus-visible {
+  .blog-post a:focus-visible,
+  .blog-post button:focus-visible {
     outline: 3px solid rgba(40, 95, 130, 0.35);
     outline-offset: 3px;
     border-radius: 3px;
@@ -156,69 +144,103 @@
 
   .post-cite {
     font-size: 0.72em;
-    font-weight: 600;
     line-height: 0;
     vertical-align: super;
     margin-left: 0.08em;
-    font-variant-numeric: tabular-nums;
   }
 
-  .post-cite a {
-    text-decoration: none;
-    padding: 0.05em 0.12em;
-    border-radius: 3px;
-  }
-
-  .post-cite a:hover {
-    text-decoration: underline;
-    background: rgba(40, 95, 130, 0.08);
-  }
-
-  .post-cite a:target {
-    background: rgba(40, 95, 130, 0.12);
-  }
-
-  .post-notes {
-    font-size: 0.92rem;
-    line-height: 1.6;
-    color: var(--post-muted);
-    margin-top: 2.5rem;
-    border-top: 1px solid var(--post-border);
-    padding-top: 1.1rem;
-  }
-
-  .post-notes-list {
-    list-style: none;
+  .post-cite-trigger {
+    appearance: none;
+    border: 0;
     margin: 0;
-    padding: 0;
+    padding: 0.08em 0.18em;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--post-accent);
+    font: inherit;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
   }
 
-  .post-notes-list li {
+  .post-cite-trigger:hover {
+    background: rgba(40, 95, 130, 0.1);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .post-cite-trigger[aria-expanded="true"] {
+    background: var(--post-accent);
+    color: #ffffff;
+    text-decoration: none;
+  }
+
+  .post-cite-popover {
+    box-sizing: border-box;
+    position: absolute;
+    z-index: 50;
+    width: min(22.5rem, calc(100vw - 1.5rem));
+    padding: 0.8rem 0.95rem;
+    border: 1px solid #d5cec3;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #252a30;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    box-shadow:
+      0 12px 30px rgba(21, 24, 28, 0.12),
+      0 2px 6px rgba(21, 24, 28, 0.06);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.14s ease, transform 0.14s ease;
+  }
+
+  .post-cite-popover[hidden] {
+    display: none;
+  }
+
+  .post-cite-popover.is-open {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .post-cite-popover::before {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    left: var(--arrow-x, 50%);
+    width: 11px;
+    height: 11px;
+    background: #ffffff;
+    transform: translateX(-50%) rotate(45deg);
+  }
+
+  .post-cite-popover[data-placement="top"]::before {
+    bottom: -6px;
+    border-right: 1px solid #d5cec3;
+    border-bottom: 1px solid #d5cec3;
+  }
+
+  .post-cite-popover[data-placement="bottom"]::before {
+    top: -6px;
+    border-left: 1px solid #d5cec3;
+    border-top: 1px solid #d5cec3;
+  }
+
+  .post-cite-popover-inner {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 0.55rem;
+    gap: 0.5rem;
     align-items: baseline;
-    padding: 0.35rem 0.5rem;
-    margin-inline: -0.5rem;
-    border-radius: 6px;
-    transition: background-color 0.25s ease;
   }
 
-  .post-notes-list li:target {
-    background: rgba(40, 95, 130, 0.08);
-    color: var(--post-text);
-  }
-
-  .post-note-num {
-    font-weight: 600;
-    color: var(--post-accent);
+  .post-cite-popover-num {
+    font-weight: 700;
+    font-size: 0.84rem;
+    color: #285f82;
     font-variant-numeric: tabular-nums;
-  }
-
-  .post-note-backref {
-    margin-left: 0.25rem;
-    text-decoration: none;
-    font-size: 0.88em;
   }
 
   .post-subscribe {
@@ -346,22 +368,12 @@
   </p>
 
   <p>
-    Unknown unknowns, if you’re unfamiliar with regular expressions you might think some task (for example renaming every file in a folder to follow a standard format) will be daunting when it can be handled with one line of regex, now extrapolate this to every single subject that LLMs know<sup class="post-cite"><a href="#note-1" id="ref-1" role="doc-noteref" aria-describedby="notes-heading">[1]</a></sup> more than you about. Ask what you believe is impossible of an agent, and it might surprise you.
+    Unknown unknowns, if you’re unfamiliar with regular expressions you might think some task (for example renaming every file in a folder to follow a standard format) will be daunting when it can be handled with one line of regex, now extrapolate this to every single subject that LLMs know<sup class="post-cite"><button type="button" class="post-cite-trigger" id="cite-trigger-1" aria-expanded="false" aria-controls="cite-popover-1" aria-label="Citation 1">[1]</button></sup> more than you about. Ask what you believe is impossible of an agent, and it might surprise you.
   </p>
 
   <p>
     I think it would be wise to present whatever grievance you have with reality to your agent, and to see what they can do about it, any minor bit of friction that you encounter and think is just a fact of life, might be solvable in a way that you don’t know, and when it’s gone you won’t have to think about it again, life can really be how you want it to be.
   </p>
-
-  <footer class="post-notes" aria-labelledby="notes-heading">
-    <h2 class="sr-only" id="notes-heading">Notes</h2>
-    <ol class="post-notes-list">
-      <li id="note-1">
-        <span class="post-note-num">[1]</span>
-        <span>LLMs are incapable of knowledge and it can be foolish to anthropomorphize them, but at the same time it can be useful to model them or think about them as if they know. <a class="post-note-backref" href="#ref-1" role="doc-backlink" aria-label="Jump back to reference 1 in text">↩</a></span>
-      </li>
-    </ol>
-  </footer>
 
   <section class="post-subscribe" aria-labelledby="post-subscribe-title">
     <h2 id="post-subscribe-title">Stay in the loop</h2>
@@ -380,5 +392,89 @@
 
 </article>
 </main>
+
+<div class="post-cite-popover" id="cite-popover-1" role="note" aria-label="Note 1" hidden>
+  <div class="post-cite-popover-inner">
+    <span class="post-cite-popover-num">[1]</span>
+    <span>LLMs are incapable of knowledge and it can be foolish to anthropomorphize them, but at the same time it can be useful to model them or think about them as if they know.</span>
+  </div>
+</div>
+
+<script>
+(function () {
+  const trigger = document.getElementById("cite-trigger-1");
+  const popover = document.getElementById("cite-popover-1");
+  if (!trigger || !popover) return;
+
+  function positionPopover() {
+    const triggerRect = trigger.getBoundingClientRect();
+    const popRect = popover.getBoundingClientRect();
+    const scrollX = window.scrollX || window.pageXOffset;
+    const scrollY = window.scrollY || window.pageYOffset;
+    const vw = document.documentElement.clientWidth;
+    const margin = 12;
+
+    const triggerCenterDocX = triggerRect.left + scrollX + triggerRect.width / 2;
+    const minLeft = scrollX + margin;
+    const maxLeft = Math.max(minLeft, scrollX + vw - popRect.width - margin);
+    const left = Math.min(Math.max(triggerCenterDocX - popRect.width / 2, minLeft), maxLeft);
+
+    const arrowX = Math.min(Math.max(triggerCenterDocX - left, 18), popRect.width - 18);
+    const placeAbove = triggerRect.top >= popRect.height + 16;
+    const top = placeAbove
+      ? triggerRect.top + scrollY - popRect.height - 10
+      : triggerRect.bottom + scrollY + 10;
+
+    popover.dataset.placement = placeAbove ? "top" : "bottom";
+    popover.style.left = left + "px";
+    popover.style.top = top + "px";
+    popover.style.setProperty("--arrow-x", arrowX + "px");
+  }
+
+  function openPopover() {
+    popover.hidden = false;
+    trigger.setAttribute("aria-expanded", "true");
+    positionPopover();
+    requestAnimationFrame(function () {
+      popover.classList.add("is-open");
+    });
+  }
+
+  function closePopover() {
+    if (popover.hidden) return;
+    popover.classList.remove("is-open");
+    popover.hidden = true;
+    trigger.setAttribute("aria-expanded", "false");
+  }
+
+  trigger.addEventListener("click", function (event) {
+    event.stopPropagation();
+    if (popover.hidden) {
+      openPopover();
+    } else {
+      closePopover();
+    }
+  });
+
+  document.addEventListener("click", function (event) {
+    if (!popover.hidden && !popover.contains(event.target) && !trigger.contains(event.target)) {
+      closePopover();
+    }
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && !popover.hidden) {
+      closePopover();
+      trigger.focus();
+    }
+  });
+
+  window.addEventListener("resize", function () {
+    if (!popover.hidden) {
+      positionPopover();
+    }
+  });
+})();
+</script>
 </body>
 </html>
