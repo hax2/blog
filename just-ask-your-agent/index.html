@@ -407,6 +407,7 @@
   if (!trigger || !popover) return;
 
   function positionPopover() {
+    popover.style.left = "0px";
     const triggerRect = trigger.getBoundingClientRect();
     const popRect = popover.getBoundingClientRect();
     const scrollX = window.scrollX || window.pageXOffset;
